@@ -1,0 +1,53 @@
+.layout {
+  height: 100dvh;
+}
+
+.layout__sidenav {
+  width: 250px;
+  border-right: none;
+  background: var(--mat-sys-surface-container);
+}
+
+.layout__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.1rem 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--mat-sys-primary);
+}
+
+.layout__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--mat-sys-surface);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
+.layout__spacer {
+  flex: 1 1 auto;
+}
+
+.layout__username {
+  margin-left: 0.4rem;
+}
+
+.layout__main {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+a.active {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+@media (max-width: 599px) {
+  .layout__username {
+    display: none;
+  }
+}

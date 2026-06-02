@@ -1,0 +1,33 @@
+// Prisma se usa SOLO cuando DATABASE_TYPE = postgres | mysql.
+// Para MongoDB se usa Mongoose (ver src/modules/users/schemas).
+//
+// NOTA mysql: cambia `provider = "mysql"` abajo. Los arrays de enum
+// (roles Role[]) solo existen en PostgreSQL; en MySQL sustituye el campo
+// por `role String @default("USER")` o una tabla de roles. Ver README.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  username         String
+  password         String
+  roles            Role[]   @default([USER])
+  refreshTokenHash String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("users")
+}

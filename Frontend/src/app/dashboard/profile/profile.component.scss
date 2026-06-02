@@ -1,0 +1,50 @@
+.profile__title {
+  margin: 0 0 1.25rem;
+  font-size: 1.6rem;
+}
+
+.profile__loading {
+  display: grid;
+  place-items: center;
+  padding: 3rem;
+}
+
+.profile__card {
+  max-width: 520px;
+  padding: 1.5rem;
+}
+
+.profile__avatar {
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+}
+
+.profile__avatar mat-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: var(--mat-sys-primary);
+}
+
+.profile__list {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0.6rem 1rem;
+  margin: 0;
+}
+
+.profile__list dt {
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.profile__list dd {
+  margin: 0;
+}
+
+.profile__roles {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}

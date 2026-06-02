@@ -1,0 +1,45 @@
+# Levanta solo lo que necesites:
+#   docker compose up -d mongo      (para DATABASE_TYPE=mongodb)
+#   docker compose up -d postgres   (para DATABASE_TYPE=postgres)
+#   docker compose up -d mysql      (para DATABASE_TYPE=mysql)
+services:
+  mongo:
+    image: mongo:7
+    container_name: nest_api_mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: nest_api_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nest_api_base
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8
+    container_name: nest_api_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nest_api_base
+      MYSQL_USER: nest
+      MYSQL_PASSWORD: nest
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mongo_data:
+  postgres_data:
+  mysql_data:

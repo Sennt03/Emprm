@@ -9,7 +9,7 @@ import { Role, User } from '@models/user.models';
 import { Observable, tap } from 'rxjs';
 import { StorageService } from './storage.service';
 
-const SESSION_KEY = 'erpm.session';
+const SESSION_KEY = 'emprm.session';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {

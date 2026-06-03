@@ -16,3 +16,11 @@ export interface UpdateUserPayload {
   email?: string;
   roles?: Role[];
 }
+
+/** Alta de usuario por un ADMIN (POST /users). */
+export interface CreateUserPayload {
+  username: string;
+  email: string;
+  password: string;
+  roles: Role[];
+}

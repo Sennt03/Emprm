@@ -9,15 +9,23 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import configuration, { AppConfig } from './config/configuration';
+import { isSql } from './config/database-type';
 import { envValidationSchema } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { MediaModule } from './modules/media/media.module';
+import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 import { RealtimeModule } from './realtime/realtime.module';
 
 // Módulo de sockets cargado solo si se activa por ENV.
 const optionalModules = process.env.ENABLE_SOCKETS === 'true' ? [RealtimeModule] : [];
+
+// El catálogo es relacional (Prisma): solo se carga con una BD SQL.
+// MediaModule va primero porque products/categories dependen de él.
+const catalogModules = isSql() ? [MediaModule, CategoriesModule, ProductsModule] : [];
 
 @Module({
   imports: [
@@ -40,6 +48,7 @@ const optionalModules = process.env.ENABLE_SOCKETS === 'true' ? [RealtimeModule]
     DatabaseModule.forRoot(),
     UsersModule,
     AuthModule,
+    ...catalogModules,
     ...optionalModules,
   ],
   controllers: [AppController],

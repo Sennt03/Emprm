@@ -1,12 +1,13 @@
 <div class="auth">
   <mat-card class="auth__card" appearance="outlined">
     @if (loading()) {
-      <mat-progress-bar mode="indeterminate" />
+      <mat-progress-bar mode="indeterminate" class="auth__progress" />
     }
 
     <header class="auth__head">
-      <h1 class="auth__title">ERPM</h1>
-      <p class="auth__subtitle">Inicia sesión en tu cuenta</p>
+      <span class="auth__logo"><mat-icon>hub</mat-icon></span>
+      <h1 class="auth__brand">Emprm</h1>
+      <p class="auth__subtitle">Inicia sesión para acceder a tu panel</p>
     </header>
 
     <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()">
@@ -47,14 +48,11 @@
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="loading()">
+      <button mat-flat-button color="primary" type="submit" class="auth__submit" [disabled]="loading()">
         Entrar
       </button>
     </form>
 
-    <footer class="auth__foot">
-      <span>¿No tienes cuenta?</span>
-      <a routerLink="/auth/register">Crear cuenta</a>
-    </footer>
+    <p class="auth__hint">El acceso es solo para usuarios autorizados.</p>
   </mat-card>
 </div>

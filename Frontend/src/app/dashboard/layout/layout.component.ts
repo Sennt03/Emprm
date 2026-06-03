@@ -36,8 +36,11 @@ export class LayoutComponent {
 
   readonly navItems: NavItem[] = [
     { label: 'Inicio', icon: 'dashboard', link: '/', exact: true, adminOnly: false },
-    { label: 'Mi perfil', icon: 'person', link: '/profile', exact: false, adminOnly: false },
+    { label: 'Productos', icon: 'inventory_2', link: '/products', exact: false, adminOnly: true },
+    { label: 'Categorías', icon: 'category', link: '/categories', exact: false, adminOnly: true },
+    { label: 'Archivos', icon: 'photo_library', link: '/media', exact: false, adminOnly: true },
     { label: 'Usuarios', icon: 'group', link: '/users', exact: false, adminOnly: true },
+    { label: 'Mi perfil', icon: 'person', link: '/profile', exact: false, adminOnly: false },
   ];
 
   constructor() {

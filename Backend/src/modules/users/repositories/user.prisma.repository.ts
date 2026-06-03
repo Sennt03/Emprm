@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Role as PrismaRole, User as PrismaUser } from '@prisma/client';
+import { User as PrismaUser } from '@prisma/client';
 import { Role } from '../../../common/enums/role.enum';
 import { PrismaService } from '../../../database/prisma/prisma.service';
 import { UserEntity } from '../entities/user.entity';
@@ -15,7 +15,7 @@ export class UserPrismaRepository implements UserRepository {
         email: data.email,
         username: data.username,
         password: data.password,
-        roles: this.toPrismaRoles(data.roles ?? [Role.USER]),
+        roles: this.serializeRoles(data.roles ?? [Role.USER]),
       },
     });
     return this.toEntity(user);
@@ -51,7 +51,7 @@ export class UserPrismaRepository implements UserRepository {
         data: {
           ...(data.email !== undefined && { email: data.email }),
           ...(data.username !== undefined && { username: data.username }),
-          ...(data.roles !== undefined && { roles: { set: this.toPrismaRoles(data.roles) } }),
+          ...(data.roles !== undefined && { roles: this.serializeRoles(data.roles) }),
         },
       });
       return this.toEntity(user);
@@ -79,20 +79,24 @@ export class UserPrismaRepository implements UserRepository {
       email: user.email,
       username: user.username,
       password: user.password,
-      roles: this.toDomainRoles(user.roles),
+      roles: this.parseRoles(user.roles),
       refreshTokenHash: user.refreshTokenHash,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
   }
 
-  // Los valores de ambos enums coinciden ('USER' | 'ADMIN'); el cast aísla
-  // la diferencia nominal de tipos entre el enum de Prisma y el de dominio.
-  private toPrismaRoles(roles: Role[]): PrismaRole[] {
-    return roles as unknown as PrismaRole[];
+  // En MySQL los roles se guardan como JSON string (p. ej. ["USER","ADMIN"]).
+  private serializeRoles(roles: Role[]): string {
+    return JSON.stringify(roles);
   }
 
-  private toDomainRoles(roles: PrismaRole[]): Role[] {
-    return roles as unknown as Role[];
+  private parseRoles(raw: string): Role[] {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      return Array.isArray(parsed) && parsed.length > 0 ? (parsed as Role[]) : [Role.USER];
+    } catch {
+      return [Role.USER];
+    }
   }
 }

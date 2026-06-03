@@ -1,11 +1,12 @@
 <div class="auth">
   <mat-card class="auth__card" appearance="outlined">
     @if (loading()) {
-      <mat-progress-bar mode="indeterminate" />
+      <mat-progress-bar mode="indeterminate" class="auth__progress" />
     }
 
     <header class="auth__head">
-      <h1 class="auth__title">ERPM</h1>
+      <span class="auth__logo"><mat-icon>hub</mat-icon></span>
+      <h1 class="auth__brand">Emprm</h1>
       <p class="auth__subtitle">Crea tu cuenta</p>
     </header>
 
@@ -72,7 +73,7 @@
         }
       </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="loading()">
+      <button mat-flat-button color="primary" type="submit" class="auth__submit" [disabled]="loading()">
         Crear cuenta
       </button>
     </form>

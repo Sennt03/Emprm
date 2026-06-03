@@ -35,3 +35,6 @@ yarn-error.log*
 
 # Prisma generated client
 /prisma/generated
+
+# Archivos subidos (biblioteca de imágenes)
+/uploads

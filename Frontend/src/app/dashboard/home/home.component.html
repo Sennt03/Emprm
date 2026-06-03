@@ -1,29 +1,31 @@
 <section class="home">
-  <h1 class="home__title">Hola, {{ user()?.username }} 👋</h1>
-  <p class="home__subtitle">Bienvenido al panel de administración de ERPM.</p>
+  <header class="home__head">
+    <h1 class="home__title">Hola, {{ user()?.username }} 👋</h1>
+    <p class="home__subtitle">Bienvenido al panel de administración de Emprm.</p>
+  </header>
 
   <div class="home__grid">
-    <mat-card appearance="outlined" class="home__card">
-      <mat-icon class="home__icon">person</mat-icon>
+    <a class="home__card" routerLink="/profile">
+      <span class="home__icon"><mat-icon>badge</mat-icon></span>
       <h2>Mi perfil</h2>
       <p>Consulta los datos de tu cuenta y tu rol.</p>
-      <a mat-button color="primary" routerLink="/profile">Ver perfil</a>
-    </mat-card>
+      <span class="home__cta">Ver perfil <mat-icon>arrow_forward</mat-icon></span>
+    </a>
 
     @if (isAdmin()) {
-      <mat-card appearance="outlined" class="home__card">
-        <mat-icon class="home__icon">group</mat-icon>
+      <a class="home__card" routerLink="/users">
+        <span class="home__icon"><mat-icon>group</mat-icon></span>
         <h2>Usuarios</h2>
         <p>Administra usuarios, roles y permisos.</p>
-        <a mat-button color="primary" routerLink="/users">Gestionar</a>
-      </mat-card>
+        <span class="home__cta">Gestionar <mat-icon>arrow_forward</mat-icon></span>
+      </a>
     }
 
-    <mat-card appearance="outlined" class="home__card">
-      <mat-icon class="home__icon">storefront</mat-icon>
+    <div class="home__card home__card--muted">
+      <span class="home__icon home__icon--muted"><mat-icon>storefront</mat-icon></span>
       <h2>Módulos</h2>
-      <p>Aquí irán los módulos del ERP (tienda, productos, etc.).</p>
-      <button mat-button disabled>Próximamente</button>
-    </mat-card>
+      <p>Aquí irán los módulos del ERP (productos, ventas, inventario…).</p>
+      <span class="home__cta home__cta--muted">Próximamente</span>
+    </div>
   </div>
 </section>

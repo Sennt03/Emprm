@@ -21,6 +21,39 @@ export const DASHBOARD_ROUTES: Routes = [
         data: { roles: ['ADMIN'] },
         loadComponent: () => import('./users/users.component').then((m) => m.UsersComponent),
       },
+      {
+        path: 'categories',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./categories/categories.component').then((m) => m.CategoriesComponent),
+      },
+      {
+        path: 'media',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./media/media.component').then((m) => m.MediaComponent),
+      },
+      {
+        path: 'products',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./products/products.component').then((m) => m.ProductsComponent),
+      },
+      {
+        path: 'products/new',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./products/product-form.component').then((m) => m.ProductFormComponent),
+      },
+      {
+        path: 'products/:id/edit',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./products/product-form.component').then((m) => m.ProductFormComponent),
+      },
       { path: '**', redirectTo: '' },
     ],
   },

@@ -23,7 +23,7 @@ async function seed() {
   try {
     const usersService = app.get(UsersService);
 
-    const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@erpm.com';
+    const email = process.env.SEED_ADMIN_EMAIL ?? 'admin@emprm.com';
     const username = process.env.SEED_ADMIN_USERNAME ?? 'admin';
     const password = process.env.SEED_ADMIN_PASSWORD ?? 'Admin1234!';
 

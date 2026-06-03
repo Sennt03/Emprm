@@ -2,18 +2,25 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
-import { UpdateUserPayload, User } from '@models/user.models';
+import { CreateUserPayload, UpdateUserPayload, User } from '@models/user.models';
 import { AuthService } from '@services/auth.service';
 import { NotificationService } from '@services/notification.service';
 import { UsersService } from '@services/users.service';
 import { ConfirmDialogComponent } from '@shared/components/confirm-dialog/confirm-dialog.component';
+import {
+  DataTableCellDirective,
+  DataTableColumn,
+  DataTableComponent,
+} from '@shared/components/data-table/data-table.component';
 import { materialImports } from '@shared/material/material.imports';
 import { getApiErrorMessage } from '@shared/utils/http-error';
+import { UserCreateDialogComponent } from './user-create-dialog.component';
 import { UserEditDialogComponent } from './user-edit-dialog.component';
 
 @Component({
   selector: 'app-users',
-  imports: [DatePipe, ...materialImports],
+  imports: [DataTableComponent, DataTableCellDirective, ...materialImports],
+  providers: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
@@ -23,13 +30,25 @@ export class UsersComponent {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly notify = inject(NotificationService);
+  private readonly datePipe = inject(DatePipe);
 
-  readonly displayedColumns = ['username', 'email', 'roles', 'createdAt', 'actions'];
   readonly users = signal<User[]>([]);
   readonly total = signal(0);
   readonly loading = signal(false);
   readonly pageIndex = signal(0);
   readonly pageSize = signal(10);
+
+  readonly columns: DataTableColumn<User>[] = [
+    { key: 'username', header: 'Usuario', cell: (u) => u.username },
+    { key: 'email', header: 'Email', cell: (u) => u.email },
+    { key: 'roles', header: 'Roles' },
+    {
+      key: 'createdAt',
+      header: 'Alta',
+      cell: (u) => this.datePipe.transform(u.createdAt ?? null, 'mediumDate') ?? '—',
+    },
+    { key: 'actions', header: 'Acciones', align: 'end', width: '120px' },
+  ];
 
   constructor() {
     this.load();
@@ -56,9 +75,28 @@ export class UsersComponent {
     this.load();
   }
 
+  create(): void {
+    this.dialog
+      .open(UserCreateDialogComponent, { width: '460px' })
+      .afterClosed()
+      .subscribe((payload?: CreateUserPayload) => {
+        if (!payload) {
+          return;
+        }
+        this.usersService.create(payload).subscribe({
+          next: () => {
+            this.notify.success('Usuario creado');
+            this.pageIndex.set(0);
+            this.load();
+          },
+          error: (err) => this.notify.error(getApiErrorMessage(err)),
+        });
+      });
+  }
+
   edit(user: User): void {
     this.dialog
-      .open(UserEditDialogComponent, { data: user, width: '420px' })
+      .open(UserEditDialogComponent, { data: user, width: '460px' })
       .afterClosed()
       .subscribe((payload?: UpdateUserPayload) => {
         if (!payload) {

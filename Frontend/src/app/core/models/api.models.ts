@@ -25,3 +25,9 @@ export interface PaginatedResult<T> {
     totalPages: number;
   };
 }
+
+/** Item de reordenamiento por lotes (categorías, productos…). */
+export interface ReorderItem {
+  id: string;
+  sortOrder: number;
+}

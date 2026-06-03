@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
 import { ApiResponse, PaginatedResult } from '@models/api.models';
-import { UpdateUserPayload, User } from '@models/user.models';
+import { CreateUserPayload, UpdateUserPayload, User } from '@models/user.models';
 import { Observable, map } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +21,11 @@ export class UsersService {
     return this.http
       .get<ApiResponse<PaginatedResult<User>>>(this.url, { params })
       .pipe(map((r) => r.data));
+  }
+
+  /** Alta de usuario con roles (solo ADMIN). */
+  create(payload: CreateUserPayload): Observable<User> {
+    return this.http.post<ApiResponse<User>>(this.url, payload).pipe(map((r) => r.data));
   }
 
   getById(id: string): Observable<User> {

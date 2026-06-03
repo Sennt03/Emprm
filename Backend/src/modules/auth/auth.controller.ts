@@ -3,7 +3,6 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
@@ -14,12 +13,9 @@ import { RefreshTokenPayload } from './interfaces/jwt-payload.interface';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
-  @Post('register')
-  @ApiOperation({ summary: 'Registrar un nuevo usuario y obtener tokens' })
-  register(@Body() dto: CreateUserDto) {
-    return this.authService.register(dto);
-  }
+  // El auto-registro público está deshabilitado a propósito: solo un ADMIN
+  // crea usuarios (POST /users). Se conserva AuthService.register por si se
+  // quiere reactivar un alta pública en el futuro.
 
   @Public()
   @HttpCode(HttpStatus.OK)

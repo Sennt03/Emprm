@@ -22,6 +22,10 @@ export interface AppConfig {
     ttl: number;
     limit: number;
   };
+  uploads: {
+    dir: string;
+    publicUrl: string;
+  };
 }
 
 const parseCorsOrigins = (raw?: string): string[] | boolean => {
@@ -57,5 +61,12 @@ export default (): AppConfig => ({
   throttle: {
     ttl: parseInt(process.env.THROTTLE_TTL ?? '60000', 10),
     limit: parseInt(process.env.THROTTLE_LIMIT ?? '100', 10),
+  },
+  uploads: {
+    // Carpeta en disco donde se guardan los archivos subidos.
+    dir: process.env.UPLOAD_DIR ?? './uploads',
+    // Base pública para construir las URLs de los archivos servidos en /uploads.
+    publicUrl:
+      process.env.PUBLIC_URL ?? `http://localhost:${parseInt(process.env.PORT ?? '3000', 10)}`,
   },
 });

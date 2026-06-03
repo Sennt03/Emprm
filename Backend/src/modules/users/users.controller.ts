@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -15,6 +16,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Role } from '../../common/enums/role.enum';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { AdminCreateUserDto } from './dto/admin-create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { toSafeUser } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -29,6 +31,14 @@ export class UsersController {
   @ApiOperation({ summary: 'Perfil del usuario autenticado' })
   getProfile(@CurrentUser() user: AuthenticatedUser) {
     return this.usersService.getProfile(user.id);
+  }
+
+  @Post()
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Crear un usuario con sus roles — solo ADMIN' })
+  async create(@Body() dto: AdminCreateUserDto) {
+    const { roles, ...data } = dto;
+    return toSafeUser(await this.usersService.create(data, roles ?? [Role.USER]));
   }
 
   @Get()

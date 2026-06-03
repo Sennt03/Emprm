@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '@services/auth.service';
 import { NotificationService } from '@services/notification.service';
 import { materialImports } from '@shared/material/material.imports';
@@ -8,7 +8,7 @@ import { getApiErrorMessage } from '@shared/utils/http-error';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, ...materialImports],
+  imports: [ReactiveFormsModule, ...materialImports],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

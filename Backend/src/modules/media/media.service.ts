@@ -1,9 +1,17 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MediaAsset, Prisma } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { MediaQueryDto } from './dto/media-query.dto';
 import { MediaStorageService } from './media-storage.service';
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB (igual que la subida manual)
 
 export interface MediaUsage {
   products: { id: string; name: string }[];
@@ -69,7 +77,67 @@ export class MediaService {
   async upload(files: Express.Multer.File[]): Promise<MediaAssetView[]> {
     const created: MediaAssetView[] = [];
     for (const file of files) {
-      const processed = await this.storage.processAndSave(file);
+      const { asset, reused } = await this.persistBuffer(file.buffer, file.originalname ?? null);
+      // Si se reutilizó por hash, el asset puede estar ya en uso: refleja su conteo real.
+      created.push(this.toView(asset, reused ? await this.usageCountOf(asset.id) : 0));
+    }
+    return created;
+  }
+
+  /**
+   * Crea (o reutiliza por hash) un asset a partir de un buffer y devuelve su id.
+   * Lo usa la carga masiva (imágenes por URL o por ZIP).
+   */
+  async findOrCreateAssetFromBuffer(buffer: Buffer, originalName: string | null): Promise<string> {
+    const { asset } = await this.persistBuffer(buffer, originalName);
+    return asset.id;
+  }
+
+  /**
+   * Descarga una imagen desde una URL pública, la valida/recomprime (sharp) y
+   * crea/reutiliza el asset. Devuelve el id. Lanza BadRequest si la URL falla,
+   * no es imagen o supera el límite de tamaño.
+   */
+  async importFromUrl(url: string): Promise<string> {
+    let res: Response;
+    try {
+      res = await fetch(url, { signal: AbortSignal.timeout(20000), redirect: 'follow' });
+    } catch {
+      throw new BadRequestException(`No se pudo descargar la imagen: ${url}`);
+    }
+    if (!res.ok) {
+      throw new BadRequestException(`No se pudo descargar la imagen (HTTP ${res.status}): ${url}`);
+    }
+    const buffer = Buffer.from(await res.arrayBuffer());
+    if (buffer.byteLength === 0) {
+      throw new BadRequestException(`La descarga está vacía: ${url}`);
+    }
+    if (buffer.byteLength > MAX_IMAGE_BYTES) {
+      throw new BadRequestException(`La imagen supera 5 MB: ${url}`);
+    }
+    // No nos fiamos del content-type: sharp valida los magic bytes al procesar.
+    const name = decodeURIComponent(url.split('/').pop()?.split('?')[0] || 'image');
+    return this.findOrCreateAssetFromBuffer(buffer, name);
+  }
+
+  /**
+   * Persiste un buffer como asset deduplicando por sha256: si ya existe un
+   * asset con el mismo hash, lo reutiliza (no reescribe el archivo).
+   */
+  private async persistBuffer(
+    buffer: Buffer,
+    originalName: string | null,
+  ): Promise<{ asset: MediaAsset; reused: boolean }> {
+    const hash = createHash('sha256').update(buffer).digest('hex');
+    const existing = await this.prisma.mediaAsset.findUnique({ where: { hash } });
+    if (existing) {
+      return { asset: existing, reused: true };
+    }
+    const processed = await this.storage.processAndSave({
+      buffer,
+      originalname: originalName ?? undefined,
+    } as Express.Multer.File);
+    try {
       const asset = await this.prisma.mediaAsset.create({
         data: {
           filename: processed.filename,
@@ -80,11 +148,29 @@ export class MediaService {
           sizeBytes: processed.sizeBytes,
           width: processed.width,
           height: processed.height,
+          hash,
         },
       });
-      created.push(this.toView(asset, 0));
+      return { asset, reused: false };
+    } catch (e) {
+      // Carrera: otro proceso insertó el mismo hash entre el check y el create.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        const again = await this.prisma.mediaAsset.findUnique({ where: { hash } });
+        if (again) {
+          await this.storage.deleteFiles({ filename: processed.filename });
+          return { asset: again, reused: true };
+        }
+      }
+      throw e;
     }
-    return created;
+  }
+
+  private async usageCountOf(assetId: string): Promise<number> {
+    const a = await this.prisma.mediaAsset.findUnique({
+      where: { id: assetId },
+      include: { _count: { select: { productLinks: true, categories: true } } },
+    });
+    return a ? a._count.productLinks + a._count.categories : 0;
   }
 
   async findOne(id: string): Promise<MediaAssetDetail> {

@@ -130,6 +130,10 @@ model MediaAsset {
   sizeBytes    Int
   width        Int?
   height       Int?
+  // sha256 del buffer de origen. Permite deduplicar: si se sube/descarga una
+  // imagen idéntica (misma foto compartida entre productos), se reutiliza el
+  // asset en vez de crear un archivo nuevo. Nullable por los assets previos.
+  hash         String?        @unique @db.VarChar(64)
   createdAt    DateTime       @default(now())
   productLinks ProductImage[]
   categories   Category[]
@@ -192,4 +196,72 @@ model VariantOption {
   @@id([variantId, optionValueId])
   @@index([optionValueId])
   @@map("variant_options")
+}
+
+// ===========================================================================
+//  CARGA MASIVA (import) — historial de procesos asíncronos + incidencias.
+//  Ver requerimientos/04.carga_masiva.md. Relacional (SQL), gated por isSql().
+// ===========================================================================
+enum ImportJobType {
+  products
+  categories
+  images
+}
+
+enum ImportJobStatus {
+  pending // creado, a la espera de que el worker lo tome
+  processing // worker procesándolo
+  completed // terminado sin errores
+  completed_with_errors // terminado con alguna fila fallida
+  failed // archivo ilegible / error global
+}
+
+enum ImportRowStatus {
+  ok
+  error
+  skipped
+}
+
+enum ImportRowAction {
+  created
+  updated
+  none
+}
+
+model ImportJob {
+  id            String          @id @default(uuid())
+  type          ImportJobType
+  originalName  String          @db.VarChar(255)
+  filePath      String          @db.VarChar(500)
+  status        ImportJobStatus @default(pending)
+  totalRows     Int             @default(0)
+  processedRows Int             @default(0)
+  successCount  Int             @default(0)
+  errorCount    Int             @default(0)
+  createdCount  Int             @default(0)
+  updatedCount  Int             @default(0)
+  message       String?         @db.VarChar(500)
+  userId        String?
+  createdAt     DateTime        @default(now())
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  rows          ImportJobRow[]
+
+  @@index([type, createdAt])
+  @@map("import_jobs")
+}
+
+model ImportJobRow {
+  id         String          @id @default(uuid())
+  jobId      String
+  job        ImportJob       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  rowNumber  Int
+  identifier String?         @db.VarChar(255)
+  status     ImportRowStatus
+  action     ImportRowAction @default(none)
+  message    String?         @db.VarChar(500)
+  rawData    Json?
+
+  @@index([jobId, status])
+  @@map("import_job_rows")
 }

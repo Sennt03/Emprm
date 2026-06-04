@@ -18,5 +18,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'media', renderMode: RenderMode.Client },
   { path: 'products', renderMode: RenderMode.Client },
   { path: 'products/**', renderMode: RenderMode.Client },
+  { path: 'import', renderMode: RenderMode.Client },
+  { path: 'import/**', renderMode: RenderMode.Client },
   { path: '**', renderMode: RenderMode.Server },
 ];

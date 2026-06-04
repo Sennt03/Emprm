@@ -15,6 +15,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { ImportModule } from './modules/import/import.module';
 import { MediaModule } from './modules/media/media.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
@@ -25,7 +26,10 @@ const optionalModules = process.env.ENABLE_SOCKETS === 'true' ? [RealtimeModule]
 
 // El catálogo es relacional (Prisma): solo se carga con una BD SQL.
 // MediaModule va primero porque products/categories dependen de él.
-const catalogModules = isSql() ? [MediaModule, CategoriesModule, ProductsModule] : [];
+// ImportModule (carga masiva) va al final: depende de products/categories/media.
+const catalogModules = isSql()
+  ? [MediaModule, CategoriesModule, ProductsModule, ImportModule]
+  : [];
 
 @Module({
   imports: [

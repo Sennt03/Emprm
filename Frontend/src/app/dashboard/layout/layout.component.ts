@@ -39,6 +39,7 @@ export class LayoutComponent {
     { label: 'Productos', icon: 'inventory_2', link: '/products', exact: false, adminOnly: true },
     { label: 'Categorías', icon: 'category', link: '/categories', exact: false, adminOnly: true },
     { label: 'Archivos', icon: 'photo_library', link: '/media', exact: false, adminOnly: true },
+    { label: 'Carga masiva', icon: 'upload_file', link: '/import', exact: true, adminOnly: true },
     { label: 'Usuarios', icon: 'group', link: '/users', exact: false, adminOnly: true },
     { label: 'Mi perfil', icon: 'person', link: '/profile', exact: false, adminOnly: false },
   ];

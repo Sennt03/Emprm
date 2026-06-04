@@ -48,11 +48,52 @@ export const DASHBOARD_ROUTES: Routes = [
           import('./products/product-form.component').then((m) => m.ProductFormComponent),
       },
       {
+        path: 'products/import',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'], type: 'products' },
+        loadComponent: () =>
+          import('./import/import-upload.component').then((m) => m.ImportUploadComponent),
+      },
+      {
+        path: 'products/images/import',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./import/import-images.component').then((m) => m.ImportImagesComponent),
+      },
+      {
         path: 'products/:id/edit',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
         loadComponent: () =>
           import('./products/product-form.component').then((m) => m.ProductFormComponent),
+      },
+      {
+        path: 'categories/import',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'], type: 'categories' },
+        loadComponent: () =>
+          import('./import/import-upload.component').then((m) => m.ImportUploadComponent),
+      },
+      {
+        path: 'import',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./import/import-hub.component').then((m) => m.ImportHubComponent),
+      },
+      {
+        path: 'import/history',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./import/import-history.component').then((m) => m.ImportHistoryComponent),
+      },
+      {
+        path: 'import/jobs/:id',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () =>
+          import('./import/import-job-detail.component').then((m) => m.ImportJobDetailComponent),
       },
       { path: '**', redirectTo: '' },
     ],

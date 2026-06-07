@@ -6,6 +6,10 @@
 
 generator client {
   provider = "prisma-client-js"
+  // Motor "binary": el query engine corre como proceso aparte. Evita el panic
+  // "timer has gone away" del library engine en hosting restringido (Hostinger/
+  // CloudLinux/Passenger), que tumbaba el proceso Node y causaba 503.
+  engineType = "binary"
 }
 
 datasource db {

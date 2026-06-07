@@ -11,7 +11,10 @@ import { environment } from './environments/environment';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+// trustProxyHeaders: detrás del proxy de Hostinger hay que confiar en las
+// cabeceras X-Forwarded-* para que Angular construya bien la URL y NO caiga a
+// CSR. Lo fijamos en código (más fiable que la env var NG_TRUST_PROXY_HEADERS).
+const angularApp = new AngularNodeAppEngine({ trustProxyHeaders: true });
 
 // Respeta X-Forwarded-Proto/Host detrás de un proxy (para construir URLs absolutas).
 app.set('trust proxy', true);

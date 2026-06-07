@@ -115,6 +115,30 @@
   background: var(--st-espresso);
 }
 
+/* En móvil la tarjeta se estrecha y los botones ‹ › se montaban sobre el
+   texto de la reseña. Reducimos su tamaño, los pegamos al borde y damos
+   suficiente padding lateral para que el texto nunca quede debajo. */
+@media (max-width: 640px) {
+  .rev__featured {
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+  .rev__nav {
+    width: 40px;
+    height: 40px;
+  }
+  .rev__nav svg {
+    width: 20px;
+    height: 20px;
+  }
+  .rev__nav--prev {
+    left: 8px;
+  }
+  .rev__nav--next {
+    right: 8px;
+  }
+}
+
 /* ---------------- Más opiniones ---------------- */
 .more {
   background: var(--st-bg);

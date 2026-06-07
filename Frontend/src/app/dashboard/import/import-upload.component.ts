@@ -41,7 +41,7 @@ export class ImportUploadComponent {
     this.kind === 'products' ? 'Importar productos' : 'Importar categorías',
   );
   readonly crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: 'Carga masiva', link: '/import' },
+    { label: 'Carga masiva', link: '/panel/import' },
     { label: this.title() },
   ]);
   readonly canImport = computed(() => {
@@ -116,7 +116,7 @@ export class ImportUploadComponent {
       next: ({ jobId }) => {
         this.importing.set(false);
         this.notify.success('Importación iniciada. Procesando en segundo plano…');
-        this.router.navigate(['/import/jobs', jobId]);
+        this.router.navigate(['/panel/import/jobs', jobId]);
       },
       error: (err) => {
         this.importing.set(false);
@@ -141,7 +141,7 @@ export class ImportUploadComponent {
   }
 
   goHistory(): void {
-    this.router.navigate(['/import/history'], { queryParams: { type: this.kind } });
+    this.router.navigate(['/panel/import/history'], { queryParams: { type: this.kind } });
   }
 
   /** Valor mostrado en una celda del preview (los arrays/errores se ignoran). */

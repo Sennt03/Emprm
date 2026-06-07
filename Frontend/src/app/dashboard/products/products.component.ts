@@ -124,11 +124,11 @@ export class ProductsComponent {
   }
 
   newProduct(): void {
-    this.router.navigate(['/products/new']);
+    this.router.navigate(['/panel/products/new']);
   }
 
   edit(product: ProductListItem): void {
-    this.router.navigate(['/products', product.id, 'edit']);
+    this.router.navigate(['/panel/products', product.id, 'edit']);
   }
 
   duplicate(product: ProductListItem): void {

@@ -23,7 +23,7 @@ import { getApiErrorMessage } from '@shared/utils/http-error';
           <h1 class="imp__title">Carga de imágenes</h1>
         </div>
         <div class="imp__actions">
-          <button mat-stroked-button routerLink="/import/history" [queryParams]="{ type: 'images' }">
+          <button mat-stroked-button routerLink="/panel/import/history" [queryParams]="{ type: 'images' }">
             <mat-icon>history</mat-icon> Historial
           </button>
         </div>
@@ -76,7 +76,7 @@ export class ImportImagesComponent {
   private readonly router = inject(Router);
 
   readonly crumbs: BreadcrumbItem[] = [
-    { label: 'Carga masiva', link: '/import' },
+    { label: 'Carga masiva', link: '/panel/import' },
     { label: 'Cargar imágenes' },
   ];
 
@@ -126,7 +126,7 @@ export class ImportImagesComponent {
       next: ({ jobId }) => {
         this.uploading.set(false);
         this.notify.success('Procesando imágenes en segundo plano…');
-        this.router.navigate(['/import/jobs', jobId]);
+        this.router.navigate(['/panel/import/jobs', jobId]);
       },
       error: (err) => {
         this.uploading.set(false);

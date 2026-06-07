@@ -38,7 +38,7 @@ export class LoginComponent {
       next: () => {
         this.loading.set(false);
         this.notify.success('Bienvenido de nuevo');
-        this.router.navigate(['/']);
+        this.router.navigate(['/panel']);
       },
       error: (err) => {
         this.loading.set(false);

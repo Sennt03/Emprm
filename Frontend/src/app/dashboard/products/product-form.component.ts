@@ -318,7 +318,7 @@ export class ProductFormComponent implements OnDestroy {
         this.saved = true;
         this.sessionUploads.clear();
         this.notify.success(this.isEdit() ? 'Producto actualizado' : 'Producto creado');
-        this.router.navigate(['/products']);
+        this.router.navigate(['/panel/products']);
       },
       error: (err) => {
         this.saving.set(false);
@@ -328,7 +328,7 @@ export class ProductFormComponent implements OnDestroy {
   }
 
   cancel(): void {
-    this.router.navigate(['/products']);
+    this.router.navigate(['/panel/products']);
   }
 
   /** Al salir sin guardar, elimina del servidor las subidas no asociadas de la sesión. */
@@ -537,7 +537,7 @@ export class ProductFormComponent implements OnDestroy {
       error: (err) => {
         this.loading.set(false);
         this.notify.error(getApiErrorMessage(err, 'No se pudo cargar el producto'));
-        this.router.navigate(['/products']);
+        this.router.navigate(['/panel/products']);
       },
     });
   }

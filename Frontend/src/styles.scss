@@ -97,6 +97,39 @@ body {
   letter-spacing: 0.01em;
 }
 
+/* ===========================================================
+   Tienda pública (storefront) — utilidades globales
+   =========================================================== */
+
+/* Desplazamiento suave para los enlaces de ancla del hero/CTA. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Aparición al hacer scroll (la directiva appReveal añade estas clases en cliente).
+   El estado por defecto (sin clases) es visible → SSR/no-JS muestran el contenido. */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(26px);
+  will-change: opacity, transform;
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Variantes de snackbar (NotificationService) */
 .success-snackbar {
   --mdc-snackbar-container-color: #059669;

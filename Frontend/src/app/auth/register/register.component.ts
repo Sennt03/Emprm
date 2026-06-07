@@ -45,7 +45,7 @@ export class RegisterComponent {
       next: () => {
         this.loading.set(false);
         this.notify.success('Cuenta creada correctamente');
-        this.router.navigate(['/']);
+        this.router.navigate(['/panel']);
       },
       error: (err) => {
         this.loading.set(false);

@@ -2,23 +2,16 @@ import { RenderMode, ServerRoute } from '@angular/ssr';
 
 /**
  * Modo de render por ruta:
- *  - auth y panel de administración -> Client (SPA, detrás de login, sin SSR).
- *  - el resto (futuros módulos públicos: tienda, productos, etc.) -> Server (SSR).
+ *  - `auth` y `panel` (administración) -> Client (SPA, detrás de login, sin SSR).
+ *  - el resto (tienda pública: portada, catálogo, producto, etc.) -> Server (SSR para SEO).
  *
- * Añade aquí rutas públicas con RenderMode.Server o RenderMode.Prerender.
+ * Las rutas de la tienda se dejan en `RenderMode.Server` (o `Prerender` si fueran estáticas).
  */
 export const serverRoutes: ServerRoute[] = [
   { path: 'auth', renderMode: RenderMode.Client },
   { path: 'auth/**', renderMode: RenderMode.Client },
-  { path: '', renderMode: RenderMode.Client },
-  { path: 'profile', renderMode: RenderMode.Client },
-  { path: 'users', renderMode: RenderMode.Client },
-  { path: 'categories', renderMode: RenderMode.Client },
-  { path: 'categories/**', renderMode: RenderMode.Client },
-  { path: 'media', renderMode: RenderMode.Client },
-  { path: 'products', renderMode: RenderMode.Client },
-  { path: 'products/**', renderMode: RenderMode.Client },
-  { path: 'import', renderMode: RenderMode.Client },
-  { path: 'import/**', renderMode: RenderMode.Client },
+  { path: 'panel', renderMode: RenderMode.Client },
+  { path: 'panel/**', renderMode: RenderMode.Client },
+  { path: '', renderMode: RenderMode.Server },
   { path: '**', renderMode: RenderMode.Server },
 ];

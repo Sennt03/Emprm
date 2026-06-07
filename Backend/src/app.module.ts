@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ImportModule } from './modules/import/import.module';
 import { MediaModule } from './modules/media/media.module';
 import { ProductsModule } from './modules/products/products.module';
+import { StorefrontModule } from './modules/storefront/storefront.module';
 import { UsersModule } from './modules/users/users.module';
 import { RealtimeModule } from './realtime/realtime.module';
 
@@ -28,7 +29,7 @@ const optionalModules = process.env.ENABLE_SOCKETS === 'true' ? [RealtimeModule]
 // MediaModule va primero porque products/categories dependen de él.
 // ImportModule (carga masiva) va al final: depende de products/categories/media.
 const catalogModules = isSql()
-  ? [MediaModule, CategoriesModule, ProductsModule, ImportModule]
+  ? [MediaModule, CategoriesModule, ProductsModule, ImportModule, StorefrontModule]
   : [];
 
 @Module({

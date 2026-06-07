@@ -26,7 +26,7 @@ interface HubCard {
           <p class="imp__muted">Importa y exporta tu catálogo en lote mediante archivos Excel.</p>
         </div>
         <div class="imp__actions">
-          <button mat-stroked-button routerLink="/import/history">
+          <button mat-stroked-button routerLink="/panel/import/history">
             <mat-icon>history</mat-icon> Historial
           </button>
         </div>
@@ -121,19 +121,19 @@ export class ImportHubComponent {
       title: 'Importar productos',
       desc: 'Sube un Excel con productos, variantes e imágenes por URL.',
       icon: 'inventory_2',
-      link: '/products/import',
+      link: '/panel/products/import',
     },
     {
       title: 'Importar categorías',
       desc: 'Crea o actualiza categorías y su jerarquía desde un Excel.',
       icon: 'category',
-      link: '/categories/import',
+      link: '/panel/categories/import',
     },
     {
       title: 'Cargar imágenes',
       desc: 'Sube un ZIP de fotos y asígnalas por SKU o slug.',
       icon: 'photo_library',
-      link: '/products/images/import',
+      link: '/panel/products/images/import',
     },
   ];
 

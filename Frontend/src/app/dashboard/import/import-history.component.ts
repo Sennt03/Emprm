@@ -62,7 +62,7 @@ export class ImportHistoryComponent {
   readonly typeFilter = signal<ImportJobType | ''>('');
 
   readonly crumbs: BreadcrumbItem[] = [
-    { label: 'Carga masiva', link: '/import' },
+    { label: 'Carga masiva', link: '/panel/import' },
     { label: 'Historial' },
   ];
 
@@ -134,11 +134,11 @@ export class ImportHistoryComponent {
   }
 
   openJob(job: ImportJob): void {
-    this.router.navigate(['/import/jobs', job.id]);
+    this.router.navigate(['/panel/import/jobs', job.id]);
   }
 
   openIncidencias(job: ImportJob): void {
-    this.router.navigate(['/import/jobs', job.id], { queryParams: { tab: 'errors' } });
+    this.router.navigate(['/panel/import/jobs', job.id], { queryParams: { tab: 'errors' } });
   }
 
   downloadErrors(job: ImportJob): void {

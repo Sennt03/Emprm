@@ -51,8 +51,8 @@ export class ImportJobDetailComponent {
   readonly statusFilter = signal<ImportRowStatus | ''>('');
 
   readonly crumbs = computed<BreadcrumbItem[]>(() => [
-    { label: 'Carga masiva', link: '/import' },
-    { label: 'Historial', link: '/import/history' },
+    { label: 'Carga masiva', link: '/panel/import' },
+    { label: 'Historial', link: '/panel/import/history' },
     { label: this.job()?.originalName ?? 'Detalle del proceso' },
   ]);
 

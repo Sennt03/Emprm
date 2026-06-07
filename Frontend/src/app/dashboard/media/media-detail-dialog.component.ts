@@ -110,7 +110,7 @@ export class MediaDetailDialogComponent {
 
   goToProduct(id: string): void {
     this.dialogRef.close();
-    this.router.navigate(['/products', id, 'edit']);
+    this.router.navigate(['/panel/products', id, 'edit']);
   }
 
   remove(): void {

@@ -101,6 +101,16 @@ body {
    Tienda pública (storefront) — utilidades globales
    =========================================================== */
 
+/* Reset de box-sizing acotado a la tienda: sin él, `height: 100%` + padding
+   (p. ej. las tarjetas de "Nuestros Clientes") desbordan su celda del grid y
+   se montan sobre la siguiente. Se limita a la tienda para no alterar el panel. */
+app-store-layout,
+app-store-layout *,
+app-store-layout *::before,
+app-store-layout *::after {
+  box-sizing: border-box;
+}
+
 /* Desplazamiento suave para los enlaces de ancla del hero/CTA. */
 @media (prefers-reduced-motion: no-preference) {
   html {

@@ -29,7 +29,10 @@ const publicHost = (() => {
 })();
 if (publicHost) {
   app.use((req, _res, next) => {
+    // Angular valida tanto "host" como "x-forwarded-host" (SSRF). El proxy de
+    // Hostinger pone el dominio interno en ambas; las forzamos al host público.
     req.headers.host = publicHost;
+    req.headers['x-forwarded-host'] = publicHost;
     next();
   });
 }

@@ -1,26 +1,15 @@
-# Despliegue en Hostinger — UNA sola app (NestJS + Angular SSR + MySQL)
+# Despliegue en Hostinger — UNA app, compilando en tu PC
 
 El backend NestJS sirve **también** la tienda (Angular SSR) desde el mismo
-proceso. Así solo necesitas:
-
-| Pieza | Qué es | Dónde |
-|-------|--------|-------|
-| App Node única | NestJS (API en `/api`) + tienda SSR (`/`) | 1 "Node.js app" en hPanel |
-| BD | MySQL gestionado | hPanel → Bases de datos MySQL |
+proceso. Compilas en tu PC y subes el build con un comando. El servidor solo
+instala dependencias (no compila nada → sin riesgo de quedarse sin RAM).
 
 - API: `https://emprm.store/api/...`
 - Tienda (SSR): `https://emprm.store/`
 - Swagger: `https://emprm.store/docs`
 - Imágenes subidas: `https://emprm.store/uploads/...`
 
-> **No necesitas subdominio** con este modelo. (Si algún día separas la API,
-> en hPanel → **Dominios → Subdominios** creas `api.emprm.store` y listo.)
-
-Cómo funciona: en `Backend/src/main.ts`, si `SERVE_FRONTEND=true`, se monta el
-handler del SSR de Angular como middleware. Las rutas `/api`, `/docs` y
-`/uploads` las atiende Nest; el resto las renderiza Angular. El bundle del
-frontend (`server.mjs`, ~800 KB, autocontenido) se copia a `Backend/frontend/`
-durante el build, por eso **no hace falta subir los `node_modules` del frontend**.
+> **No necesitas subdominio** con este modelo.
 
 ---
 
@@ -29,94 +18,78 @@ durante el build, por eso **no hace falta subir los `node_modules` del frontend*
 ### 1.1 Base de datos MySQL
 1. hPanel → **Bases de datos → MySQL** → crea BD y usuario.
 2. Apunta **host, nombre BD, usuario, contraseña** (para `DATABASE_URL`).
-3. Si vas a migrar desde GitHub Actions (host remoto), entra en **Remote MySQL**
-   y autoriza la IP que conecta. Si todo corre en el mismo servidor, el host
-   suele ser `localhost`.
+   El host suele ser `localhost` si la app corre en el mismo servidor.
 
-### 1.2 Dominio
-Apunta `emprm.store` a Hostinger (si lo compraste allí, ya está). Activa **SSL**
-en hPanel → **SSL**.
+### 1.2 Dominio y SSL
+Apunta `emprm.store` a Hostinger y activa **SSL** (hPanel → SSL).
 
 ### 1.3 Crear UNA "Node.js app"
-hPanel → **Avanzado → Node.js** (o "Setup Node.js App"):
+hPanel → **Avanzado → Node.js**:
 - **Node version:** 20.x
-- **Application root:** carpeta donde vivirá el backend (ej. `domains/emprm.store/app/Backend`)
+- **Application root:** la carpeta donde vivirá el backend (esta ruta es tu `APP_PATH`)
 - **Application URL:** `emprm.store`
 - **Application startup file:** `dist/main.js`
 
-### 1.4 Variable de entorno
-Crea el archivo **`.env` dentro de la carpeta del backend en el servidor**
-(no se sube por git). Usa `Backend/.env.production.example` como plantilla.
-Imprescindibles:
-- `SERVE_FRONTEND=true`
-- `API_PREFIX=api`
-- `DATABASE_URL=...` (datos del paso 1.1)
-- `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` (genéralos):
-  ```bash
-  node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-  ```
-- `PUBLIC_URL=https://emprm.store`
+> Si tenías activado **Git → Auto-Deployment**, **desactívalo**: con este método
+> no se usa (y evitamos que intente compilar y falle).
 
-> Si tu dominio final no es `emprm.store`, cámbialo también en
+### 1.4 Crear el `.env` en el servidor
+Dentro de la carpeta de la app (`APP_PATH`) crea un archivo **`.env`** (por SSH o
+File Manager). Lo leen tanto la app como `prisma migrate`. Mínimo:
+```
+NODE_ENV=production
+SERVE_FRONTEND=true
+API_PREFIX=api
+DATABASE_TYPE=mysql
+DATABASE_URL=mysql://USUARIO:CLAVE@localhost:3306/NOMBRE_BD
+JWT_ACCESS_SECRET=...
+JWT_REFRESH_SECRET=...
+PUBLIC_URL=https://emprm.store
+```
+Genera los secretos JWT:
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+> Si tu dominio no es `emprm.store`, cámbialo también en
 > `Frontend/src/environments/environment.production.ts` y en
-> `Frontend/angular.json` → `security.allowedHosts` (necesario para que el SSR
-> no rechace el Host; si no, la tienda cae a render de cliente y pierde SEO).
+> `Frontend/angular.json` → `security.allowedHosts` (si no, el SSR rechaza el
+> Host y la tienda cae a render de cliente, perdiendo SEO).
 
 ---
 
-## Parte 2 — Cómo desplegar (push y listo)
+## Parte 2 — Desplegar (cada vez, desde tu PC)
 
-### Opción A (recomendada): GitHub Actions
-Compila en la nube y sube el resultado por SSH. Evita compilar Angular en el
-hosting compartido (suele quedarse sin RAM). Workflow ya incluido en
-`.github/workflows/deploy.yml`; se dispara al hacer **push a la rama `prod`**.
-
-**Secrets** en GitHub → repo → Settings → Secrets and variables → Actions:
-
-| Secret | Valor |
-|--------|-------|
-| `SSH_HOST` | IP/host SSH de Hostinger (hPanel → Avanzado → SSH) |
-| `SSH_PORT` | Puerto SSH (Hostinger suele usar `65002`) |
-| `SSH_USER` | Usuario SSH |
-| `SSH_KEY` | Clave **privada** SSH |
-| `APP_PATH` | Ruta absoluta de la carpeta del backend en el servidor |
-
-Generar clave SSH (en tu PC) y registrarla:
-```bash
-ssh-keygen -t ed25519 -f hostinger_deploy -N ""
-# Sube hostinger_deploy.pub a hPanel → SSH (authorized keys)
-# Pega el contenido de hostinger_deploy (privada) en el secret SSH_KEY
-```
-
-Uso diario:
-```bash
-git checkout -b prod        # solo la primera vez
-git push -u origin prod     # cada push a prod -> despliegue automático
-```
-
-### Opción B: Git nativo de Hostinger + script SSH
-1. hPanel → **Avanzado → Git** → conecta el repo y la rama `prod`, activa
-   **Auto-Deployment** (te da un webhook para GitHub → Settings → Webhooks).
-   Esto hace `git pull` automático en cada push, pero **no compila ni reinicia**.
-2. Tras el push, entra por SSH y lanza el script del repo:
+1. La primera vez, crea tu config local (no se sube al repo):
    ```bash
-   ssh -p 65002 usuario@host
-   cd ~/ruta/del/repo
-   bash deploy.sh   # pull + build front + copiar + build back + migrar + reiniciar
+   cp deploy.config.example deploy.config
+   # edita deploy.config con SSH_HOST, SSH_PORT, SSH_USER y APP_PATH
    ```
+   Los datos SSH están en hPanel → **Avanzado → SSH**. `APP_PATH` es el
+   *Application root* de tu Node.js app (con SSH, entra en la carpeta y haz `pwd`).
 
-> Riesgo de B: compilar Angular SSR en compartido puede agotar la memoria. Si
-> `npm run build` falla, usa la Opción A.
+2. Despliega:
+   ```bash
+   bash deploy.sh
+   ```
+   Esto compila front + back en tu PC, sube solo el build por `rsync`, instala las
+   deps de producción en el servidor, aplica migraciones y reinicia la app.
+   (Te pedirá la contraseña SSH si no tienes clave configurada.)
+
+> Alternativa sin script: compila en tu PC (`bash deploy.sh` hace los pasos), o
+> sube `Backend/dist` y `Backend/frontend` por el **File Manager** de hPanel y
+> luego, en la Node.js app, pulsa **Run NPM Install** y **Restart**. Las
+> migraciones tendrías que correrlas igual (ver Parte 3).
 
 ---
 
 ## Parte 3 — Primer arranque (una vez)
+Por SSH, dentro de `APP_PATH` (las deps ya están instaladas tras el primer `deploy.sh`):
 ```bash
-cd <APP_PATH>
-npx prisma migrate deploy   # crea las tablas
-npm run seed:prod           # crea el usuario admin inicial
+npm run seed:prod   # crea el usuario admin inicial
 ```
-Reinicia desde hPanel ("Restart") o `touch tmp/restart.txt`.
+Las **migraciones** las aplica `deploy.sh` solo. Si las quieres lanzar a mano:
+`npx prisma migrate deploy`.
 
 ---
 
@@ -130,5 +103,6 @@ Reinicia desde hPanel ("Restart") o `touch tmp/restart.txt`.
 
 ## Notas
 - **uploads** persiste en `Backend/uploads`; el deploy NO lo borra.
-- Cambios solo de frontend igualmente recompilan y reinician la app (no basta copiar).
-- El bundle del frontend va en `Backend/frontend/` (ignorado por git, se genera al build).
+- El bundle del frontend va en `Backend/frontend/` (ignorado por git, lo genera el build).
+- El servidor **no compila**: solo `npm ci --omit=dev` (rápido y con binarios
+  nativos correctos: bcrypt, sharp, engine de Prisma).

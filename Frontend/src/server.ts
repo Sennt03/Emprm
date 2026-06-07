@@ -16,6 +16,24 @@ const angularApp = new AngularNodeAppEngine();
 // Respeta X-Forwarded-Proto/Host detrás de un proxy (para construir URLs absolutas).
 app.set('trust proxy', true);
 
+// Detrás del proxy/caché de Hostinger el header Host llega como el dominio
+// interno (xxx.hostingersite.com), y el SSR de Angular rechaza hosts
+// desconocidos cayendo a CSR (se pierde el SEO). Forzamos el host público para
+// que el render sea siempre en servidor, sin importar qué mande el proxy.
+const publicHost = (() => {
+  try {
+    return new URL(environment.url_site).host;
+  } catch {
+    return '';
+  }
+})();
+if (publicHost) {
+  app.use((req, _res, next) => {
+    req.headers.host = publicHost;
+    next();
+  });
+}
+
 /**
  * sitemap.xml dinámico: combina las rutas estáticas con los slugs activos de
  * categorías y productos (consultados a la API pública del catálogo).

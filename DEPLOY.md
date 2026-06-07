@@ -1,41 +1,40 @@
-# Despliegue en Hostinger — UNA app, compilando en tu PC
+# Despliegue en Hostinger — UNA app, deploy por git push
 
-El backend NestJS sirve **también** la tienda (Angular SSR) desde el mismo
-proceso. Compilas en tu PC y subes el build con un comando. El servidor solo
-instala dependencias (no compila nada → sin riesgo de quedarse sin RAM).
+El backend NestJS sirve **también** la tienda (Angular SSR). Reparto del trabajo:
 
-- API: `https://emprm.store/api/...`
+- **El frontend lo compilas tú** en tu PC y va versionado dentro de `Backend/frontend/`
+  (Hostinger no sabe compilar Angular y se quedaría sin RAM).
+- **El backend lo compila Hostinger** al recibir el push (por eso `@nestjs/cli` y
+  `typescript` están en `dependencies`: así el `nest build` automático funciona).
+
+URLs en producción:
 - Tienda (SSR): `https://emprm.store/`
+- API: `https://emprm.store/api/...`
 - Swagger: `https://emprm.store/docs`
-- Imágenes subidas: `https://emprm.store/uploads/...`
+- Imágenes: `https://emprm.store/uploads/...`
 
-> **No necesitas subdominio** con este modelo.
+> No necesitas subdominio.
 
 ---
 
 ## Parte 1 — Una sola vez en Hostinger (hPanel)
 
 ### 1.1 Base de datos MySQL
-1. hPanel → **Bases de datos → MySQL** → crea BD y usuario.
-2. Apunta **host, nombre BD, usuario, contraseña** (para `DATABASE_URL`).
-   El host suele ser `localhost` si la app corre en el mismo servidor.
+hPanel → **Bases de datos → MySQL** → crea BD y usuario. Apunta host, nombre,
+usuario y clave (para `DATABASE_URL`). El host suele ser `localhost`.
 
 ### 1.2 Dominio y SSL
 Apunta `emprm.store` a Hostinger y activa **SSL** (hPanel → SSL).
 
-### 1.3 Crear UNA "Node.js app"
-hPanel → **Avanzado → Node.js**:
-- **Node version:** 20.x
-- **Application root:** la carpeta donde vivirá el backend (esta ruta es tu `APP_PATH`)
-- **Application URL:** `emprm.store`
-- **Application startup file:** `dist/main.js`
-
-> Si tenías activado **Git → Auto-Deployment**, **desactívalo**: con este método
-> no se usa (y evitamos que intente compilar y falle).
+### 1.3 Node.js app + Git
+- **Node.js app**: Node 20.x, *startup file* = `dist/main.js`, *Application URL* =
+  `emprm.store`. Apunta la ruta del *Application root* (= `APP_PATH`).
+- **Git**: conecta tu repo y la rama que uses (ej. `master`) con **Auto-Deployment ON**.
+  (Ahora sí funciona: el `npm install` + `nest build` automático compila el backend.)
 
 ### 1.4 Crear el `.env` en el servidor
-Dentro de la carpeta de la app (`APP_PATH`) crea un archivo **`.env`** (por SSH o
-File Manager). Lo leen tanto la app como `prisma migrate`. Mínimo:
+Dentro de `APP_PATH` crea un archivo **`.env`** (por SSH o File Manager). Lo leen
+la app y el `prisma migrate`. Mínimo:
 ```
 NODE_ENV=production
 SERVE_FRONTEND=true
@@ -46,63 +45,49 @@ JWT_ACCESS_SECRET=...
 JWT_REFRESH_SECRET=...
 PUBLIC_URL=https://emprm.store
 ```
-Genera los secretos JWT:
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
+Genera los secretos: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 
-> Si tu dominio no es `emprm.store`, cámbialo también en
+> Si el dominio no es `emprm.store`, cámbialo en
 > `Frontend/src/environments/environment.production.ts` y en
-> `Frontend/angular.json` → `security.allowedHosts` (si no, el SSR rechaza el
-> Host y la tienda cae a render de cliente, perdiendo SEO).
+> `Frontend/angular.json` → `security.allowedHosts`.
 
 ---
 
-## Parte 2 — Desplegar (cada vez, desde tu PC)
+## Parte 2 — Desplegar (cada vez)
 
-1. La primera vez, crea tu config local (no se sube al repo):
-   ```bash
-   cp deploy.config.example deploy.config
-   # edita deploy.config con SSH_HOST, SSH_PORT, SSH_USER y APP_PATH
-   ```
-   Los datos SSH están en hPanel → **Avanzado → SSH**. `APP_PATH` es el
-   *Application root* de tu Node.js app (con SSH, entra en la carpeta y haz `pwd`).
-
-2. Despliega:
-   ```bash
-   bash deploy.sh
-   ```
-   Esto compila front + back en tu PC, sube solo el build por `rsync`, instala las
-   deps de producción en el servidor, aplica migraciones y reinicia la app.
-   (Te pedirá la contraseña SSH si no tienes clave configurada.)
-
-> Alternativa sin script: compila en tu PC (`bash deploy.sh` hace los pasos), o
-> sube `Backend/dist` y `Backend/frontend` por el **File Manager** de hPanel y
-> luego, en la Node.js app, pulsa **Run NPM Install** y **Restart**. Las
-> migraciones tendrías que correrlas igual (ver Parte 3).
-
----
-
-## Parte 3 — Primer arranque (una vez)
-Por SSH, dentro de `APP_PATH` (las deps ya están instaladas tras el primer `deploy.sh`):
+Desde tu PC, en la raíz del proyecto:
 ```bash
-npm run seed:prod   # crea el usuario admin inicial
+bash deploy.sh "lo que cambiaste"
 ```
-Las **migraciones** las aplica `deploy.sh` solo. Si las quieres lanzar a mano:
-`npx prisma migrate deploy`.
+Eso compila el frontend, lo mete en `Backend/frontend/`, hace commit y push.
+Hostinger detecta el push, instala dependencias y compila el backend
+automáticamente. Mira el progreso en hPanel → Git.
+
+> Si prefieres a mano: `cd Frontend && npm run build`, copia `dist/Frontend/*` a
+> `Backend/frontend/`, y `git add -A && git commit -m "..." && git push`.
+
+---
+
+## Parte 3 — Primer arranque (una vez) y migraciones
+Hostinger NO ejecuta migraciones. Por SSH, dentro de `APP_PATH`:
+```bash
+npx prisma migrate deploy   # crea/actualiza tablas (repetir solo si añades migraciones)
+npm run seed:prod           # crea el admin (solo la primera vez)
+```
+Si el backend no se reinicia solo tras el deploy: hPanel → Node.js → **Restart**
+(o `mkdir -p tmp && touch tmp/restart.txt`).
 
 ---
 
 ## Checklist
-- [ ] `https://emprm.store/` carga la tienda; en "ver código fuente" el HTML viene
-      con contenido (SSR ok, no solo `<app-root></app-root>` vacío).
+- [ ] `https://emprm.store/` carga la tienda; "ver código fuente" trae HTML con
+      contenido (SSR ok, no `<app-root></app-root>` vacío).
 - [ ] `https://emprm.store/api/...` responde y `/docs` muestra Swagger.
 - [ ] Login del panel funciona.
-- [ ] Las imágenes de `/uploads` cargan.
-- [ ] `https://emprm.store/sitemap.xml` devuelve XML.
+- [ ] Imágenes de `/uploads` cargan.
 
 ## Notas
-- **uploads** persiste en `Backend/uploads`; el deploy NO lo borra.
-- El bundle del frontend va en `Backend/frontend/` (ignorado por git, lo genera el build).
-- El servidor **no compila**: solo `npm ci --omit=dev` (rápido y con binarios
-  nativos correctos: bcrypt, sharp, engine de Prisma).
+- El bundle del frontend (`Backend/frontend/`) va **versionado** a propósito.
+  Recuérdalo: tras tocar el frontend, hay que recompilarlo (lo hace `deploy.sh`).
+- `uploads` persiste en `Backend/uploads`; el deploy no lo borra.
+- El `.env` con secretos vive solo en el servidor (no en el repo).

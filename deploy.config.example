@@ -1,7 +1,0 @@
-# Copia este archivo a 'deploy.config' y pon tus datos reales.
-# 'deploy.config' está en .gitignore (no se sube al repo).
-SSH_HOST=tu-host-o-ip-de-hostinger
-SSH_PORT=65002
-SSH_USER=tu-usuario-ssh
-# Carpeta de tu "Node.js app" en el servidor (Application root). Mira su ruta con: pwd
-APP_PATH=/home/USUARIO/domains/emprm.store/app/Backend

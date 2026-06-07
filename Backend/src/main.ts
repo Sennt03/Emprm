@@ -5,8 +5,10 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import type { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { AppModule } from './app.module';
 import { AppConfig } from './config/configuration';
 
@@ -24,7 +26,14 @@ async function bootstrap() {
 
   // Seguridad. crossOriginResourcePolicy en cross-origin para que el frontend
   // (otro puerto/origen) pueda cargar las imágenes servidas en /uploads.
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  // contentSecurityPolicy desactivado: la CSP por defecto de helmet rompe el
+  // HTML/JS que inyecta Angular SSR cuando lo sirve este mismo proceso (prod).
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+    }),
+  );
   app.enableCors({
     origin: config.get('corsOrigins', { infer: true }),
     credentials: true,
@@ -54,6 +63,37 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document, {
     swaggerOptions: { persistAuthorization: true },
   });
+
+  // ---------------------------------------------------------------------------
+  // Frontend Angular (SSR) servido por ESTE MISMO proceso (1 sola app en prod).
+  // Con SERVE_FRONTEND=true montamos el handler del SSR. Hay que registrarlo
+  // ANTES de listen() (Nest instala su propio 404 al final del init y taparía
+  // cualquier middleware posterior). Por eso dejamos pasar a Nest las rutas de
+  // API/docs/uploads con next() y el resto (la tienda) lo renderiza Angular.
+  // El bundle server.mjs es ESM y autocontenido (no necesita node_modules del
+  // frontend).
+  // ---------------------------------------------------------------------------
+  if (process.env.SERVE_FRONTEND === 'true') {
+    const entry =
+      process.env.FRONTEND_SSR_ENTRY ??
+      resolve(__dirname, '../frontend/server/server.mjs');
+    // import() dinámico real: TS bajaría import() a require() en CommonJS y
+    // require no puede cargar ESM. El wrapper en Function lo evita.
+    const importEsm = new Function('p', 'return import(p)') as (
+      p: string,
+    ) => Promise<{ reqHandler: import('express').RequestHandler }>;
+    const { reqHandler } = await importEsm(pathToFileURL(entry).href);
+
+    const passthrough = [`/${apiPrefix}`, '/docs', '/uploads'];
+    app.use((req: Request, res: Response, next: NextFunction) => {
+      const path = req.path;
+      if (passthrough.some((p) => path === p || path.startsWith(`${p}/`))) {
+        return next(); // deja que lo gestione Nest (API, Swagger, estáticos)
+      }
+      return reqHandler(req, res, next); // lo renderiza Angular
+    });
+    logger.log(`Front -> SSR Angular servido desde ${entry}`);
+  }
 
   const port = config.get('port', { infer: true });
   await app.listen(port);

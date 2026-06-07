@@ -38,3 +38,11 @@ yarn-error.log*
 
 # Archivos subidos (biblioteca de imágenes)
 /uploads
+
+# Passenger restart
+/tmp
+
+# Bundle del frontend copiado para servirlo desde el backend (1 sola app)
+/frontend
+
+.env.production.example

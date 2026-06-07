@@ -1,0 +1,75 @@
+name: Deploy a Hostinger
+
+# Se dispara al hacer push a la rama de producción.
+on:
+  push:
+    branches: [prod]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            Backend/package-lock.json
+            Frontend/package-lock.json
+
+      # ---------- FRONTEND (Angular SSR) ----------
+      - name: Frontend · instalar y compilar
+        working-directory: Frontend
+        run: |
+          npm ci
+          npm run build
+
+      # ---------- BACKEND (NestJS) ----------
+      # Compilamos aquí (CI tiene las devDependencies). El servidor NO compila.
+      - name: Backend · instalar y compilar
+        working-directory: Backend
+        run: |
+          npm ci
+          npm run build
+
+      # Copia el bundle del frontend dentro del backend: 1 sola app lo sirve todo.
+      - name: Integrar frontend en el backend
+        run: |
+          rm -rf Backend/frontend
+          mkdir -p Backend/frontend
+          cp -r Frontend/dist/Frontend/* Backend/frontend/
+
+      # ---------- Clave SSH ----------
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      # ---------- Subir SOLO lo ya compilado + manifiestos (sin node_modules) ----------
+      # Las dependencias se instalan en el servidor para tener los binarios
+      # nativos correctos (bcrypt, sharp, engine de Prisma). NO borra .env, uploads ni tmp.
+      - name: Subir al servidor
+        run: |
+          rsync -az --delete \
+            --exclude '.env' --exclude 'uploads/' --exclude 'tmp/' --exclude 'node_modules/' \
+            -e "ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_ed25519" \
+            Backend/dist Backend/frontend Backend/package.json Backend/package-lock.json Backend/prisma \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.APP_PATH }}/
+
+      # ---------- En el servidor: instalar prod deps + migrar + reiniciar ----------
+      # 'npm ci --omit=dev' dispara el postinstall (prisma generate) con el engine
+      # correcto del servidor. Luego aplica migraciones y reinicia Passenger.
+      - name: Instalar, migrar y reiniciar
+        run: |
+          ssh -p ${{ secrets.SSH_PORT }} -i ~/.ssh/id_ed25519 \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "cd ${{ secrets.APP_PATH }} && npm ci --omit=dev && npx prisma migrate deploy && mkdir -p tmp && touch tmp/restart.txt"

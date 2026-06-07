@@ -74,25 +74,35 @@ async function bootstrap() {
   // frontend).
   // ---------------------------------------------------------------------------
   if (process.env.SERVE_FRONTEND === 'true') {
+    // El bundle va DENTRO de dist/ (dist/frontend) porque Hostinger solo
+    // despliega la carpeta dist; el build lo copia ahí (ver scripts/copy-frontend.cjs).
     const entry =
       process.env.FRONTEND_SSR_ENTRY ??
-      resolve(__dirname, '../frontend/server/server.mjs');
-    // import() dinámico real: TS bajaría import() a require() en CommonJS y
-    // require no puede cargar ESM. El wrapper en Function lo evita.
-    const importEsm = new Function('p', 'return import(p)') as (
-      p: string,
-    ) => Promise<{ reqHandler: import('express').RequestHandler }>;
-    const { reqHandler } = await importEsm(pathToFileURL(entry).href);
+      resolve(__dirname, 'frontend/server/server.mjs');
+    try {
+      // import() dinámico real: TS bajaría import() a require() en CommonJS y
+      // require no puede cargar ESM. El wrapper en Function lo evita.
+      const importEsm = new Function('p', 'return import(p)') as (
+        p: string,
+      ) => Promise<{ reqHandler: import('express').RequestHandler }>;
+      const { reqHandler } = await importEsm(pathToFileURL(entry).href);
 
-    const passthrough = [`/${apiPrefix}`, '/docs', '/uploads'];
-    app.use((req: Request, res: Response, next: NextFunction) => {
-      const path = req.path;
-      if (passthrough.some((p) => path === p || path.startsWith(`${p}/`))) {
-        return next(); // deja que lo gestione Nest (API, Swagger, estáticos)
-      }
-      return reqHandler(req, res, next); // lo renderiza Angular
-    });
-    logger.log(`Front -> SSR Angular servido desde ${entry}`);
+      const passthrough = [`/${apiPrefix}`, '/docs', '/uploads'];
+      app.use((req: Request, res: Response, next: NextFunction) => {
+        const path = req.path;
+        if (passthrough.some((p) => path === p || path.startsWith(`${p}/`))) {
+          return next(); // deja que lo gestione Nest (API, Swagger, estáticos)
+        }
+        return reqHandler(req, res, next); // lo renderiza Angular
+      });
+      logger.log(`Front -> SSR Angular servido desde ${entry}`);
+    } catch (err) {
+      // Si el bundle no está, la API sigue funcionando (no tiramos el proceso).
+      logger.error(
+        `No se pudo cargar el SSR del frontend (${entry}); la API sigue activa.`,
+        err as Error,
+      );
+    }
   }
 
   const port = config.get('port', { infer: true });

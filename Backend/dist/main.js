@@ -47,18 +47,23 @@ async function bootstrap() {
     });
     if (process.env.SERVE_FRONTEND === 'true') {
         const entry = process.env.FRONTEND_SSR_ENTRY ??
-            (0, node_path_1.resolve)(__dirname, '../frontend/server/server.mjs');
-        const importEsm = new Function('p', 'return import(p)');
-        const { reqHandler } = await importEsm((0, node_url_1.pathToFileURL)(entry).href);
-        const passthrough = [`/${apiPrefix}`, '/docs', '/uploads'];
-        app.use((req, res, next) => {
-            const path = req.path;
-            if (passthrough.some((p) => path === p || path.startsWith(`${p}/`))) {
-                return next();
-            }
-            return reqHandler(req, res, next);
-        });
-        logger.log(`Front -> SSR Angular servido desde ${entry}`);
+            (0, node_path_1.resolve)(__dirname, 'frontend/server/server.mjs');
+        try {
+            const importEsm = new Function('p', 'return import(p)');
+            const { reqHandler } = await importEsm((0, node_url_1.pathToFileURL)(entry).href);
+            const passthrough = [`/${apiPrefix}`, '/docs', '/uploads'];
+            app.use((req, res, next) => {
+                const path = req.path;
+                if (passthrough.some((p) => path === p || path.startsWith(`${p}/`))) {
+                    return next();
+                }
+                return reqHandler(req, res, next);
+            });
+            logger.log(`Front -> SSR Angular servido desde ${entry}`);
+        }
+        catch (err) {
+            logger.error(`No se pudo cargar el SSR del frontend (${entry}); la API sigue activa.`, err);
+        }
     }
     const port = config.get('port', { infer: true });
     await app.listen(port);

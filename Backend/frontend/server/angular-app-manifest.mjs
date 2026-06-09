@@ -8,9 +8,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js"
@@ -244,9 +244,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
@@ -260,14 +260,14 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
-      "chunk-MCJEP2QK.js",
-      "chunk-FBA6XXHE.js",
+      "chunk-XVBG4E7Y.js",
+      "chunk-MKQZNUUP.js",
       "chunk-ADTMC64D.js",
       "chunk-IQGVCYTI.js"
     ],
@@ -276,13 +276,13 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
-      "chunk-DFY5RK2O.js",
+      "chunk-TR2GTX77.js",
       "chunk-ADTMC64D.js"
     ],
     "route": "/producto/*"
@@ -290,9 +290,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
@@ -306,9 +306,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
@@ -322,9 +322,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
@@ -337,9 +337,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js",
@@ -352,9 +352,9 @@ export default {
   {
     "renderMode": 0,
     "preload": [
-      "chunk-WLPTALP7.js",
-      "chunk-5GARNAWZ.js",
-      "chunk-BJLVXPYC.js",
+      "chunk-PVP42QVT.js",
+      "chunk-C242IO72.js",
+      "chunk-WDC6CEFL.js",
       "chunk-DM5JIE2W.js",
       "chunk-NRBNLFH3.js",
       "chunk-NCDDPRO4.js"
@@ -365,8 +365,8 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 23232, hash: '93126437ad52b039fdd2d5b8af9b7db6f8ee6a87978ff8ae3c2437ec7220eeef', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 15352, hash: '5254600944e8d1084fca8f95412a7baac233bd04345bae446f988a4d109f3bc6', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'index.csr.html': {size: 23232, hash: '65081999e97fa887e931c9148a688ec8de99a8825b0d6b80bed98730cc7564bd', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 15352, hash: '19c6d74820ca7e172b9702a19edf00094ad41f3cf0c7055da493526cd4389dca', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
     'styles-AFAMJ2SG.css': {size: 9589, hash: '0Pw1iMQAL/4', text: () => import('./assets-chunks/styles-AFAMJ2SG_css.mjs').then(m => m.default)}
   },
 };

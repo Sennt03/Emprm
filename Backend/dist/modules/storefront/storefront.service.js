@@ -14,6 +14,9 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../../database/prisma/prisma.service");
 const COLLECTIONS_LIMIT = 3;
+const FEATURED_LIMIT = 60;
+const CATEGORY_PRODUCTS_LIMIT = 200;
+const CACHE_TTL_MS = 60_000;
 const CARD_INCLUDE = {
     categories: { select: { name: true }, take: 1 },
     images: {
@@ -66,8 +69,31 @@ const COLLECTION_SELECT = {
 let StorefrontService = class StorefrontService {
     constructor(prisma) {
         this.prisma = prisma;
+        this.cache = new Map();
     }
-    async getHome() {
+    cached(key, producer) {
+        const now = Date.now();
+        const hit = this.cache.get(key);
+        if (hit && hit.expires > now) {
+            return hit.value;
+        }
+        if (this.cache.size > 500) {
+            for (const [k, v] of this.cache) {
+                if (v.expires <= now)
+                    this.cache.delete(k);
+            }
+        }
+        const value = producer().catch((err) => {
+            this.cache.delete(key);
+            throw err;
+        });
+        this.cache.set(key, { expires: now + CACHE_TTL_MS, value });
+        return value;
+    }
+    getHome() {
+        return this.cached('home', () => this.fetchHome());
+    }
+    async fetchHome() {
         const [collections, products] = await Promise.all([
             this.prisma.category.findMany({
                 where: { status: client_1.CategoryStatus.active, imageUrl: { not: null } },
@@ -78,6 +104,7 @@ let StorefrontService = class StorefrontService {
             this.prisma.product.findMany({
                 where: { status: client_1.ProductStatus.active, featured: true },
                 orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+                take: FEATURED_LIMIT,
                 include: CARD_INCLUDE,
             }),
         ]);
@@ -86,7 +113,10 @@ let StorefrontService = class StorefrontService {
             featuredProducts: products.map((p) => this.toCard(p)),
         };
     }
-    async getCatalog() {
+    getCatalog() {
+        return this.cached('catalog', () => this.fetchCatalog());
+    }
+    async fetchCatalog() {
         const categories = await this.prisma.category.findMany({
             where: { status: client_1.CategoryStatus.active },
             orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
@@ -94,7 +124,10 @@ let StorefrontService = class StorefrontService {
         });
         return { categories: categories.map((c) => this.toCollection(c)) };
     }
-    async getCategory(slug) {
+    getCategory(slug) {
+        return this.cached(`category:${slug}`, () => this.fetchCategory(slug));
+    }
+    async fetchCategory(slug) {
         const cat = await this.prisma.category.findFirst({
             where: { slug, status: client_1.CategoryStatus.active },
             select: { ...COLLECTION_SELECT, id: true },
@@ -109,6 +142,7 @@ let StorefrontService = class StorefrontService {
                 categories: { some: { id: { in: categoryIds } } },
             },
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+            take: CATEGORY_PRODUCTS_LIMIT,
             include: CARD_INCLUDE,
         });
         return {
@@ -117,7 +151,10 @@ let StorefrontService = class StorefrontService {
             products: products.map((p) => this.toCard(p)),
         };
     }
-    async getProduct(slug) {
+    getProduct(slug) {
+        return this.cached(`product:${slug}`, () => this.fetchProduct(slug));
+    }
+    async fetchProduct(slug) {
         const product = await this.prisma.product.findFirst({
             where: { slug, status: client_1.ProductStatus.active },
             include: DETAIL_INCLUDE,
@@ -127,7 +164,10 @@ let StorefrontService = class StorefrontService {
         }
         return this.toDetail(product);
     }
-    async getSitemap() {
+    getSitemap() {
+        return this.cached('sitemap', () => this.fetchSitemap());
+    }
+    async fetchSitemap() {
         const [products, categories] = await Promise.all([
             this.prisma.product.findMany({
                 where: { status: client_1.ProductStatus.active },

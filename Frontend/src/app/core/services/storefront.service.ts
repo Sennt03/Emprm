@@ -14,7 +14,7 @@ import {
 import { environment } from '@env/environment';
 import { ApiResponse } from '@models/api.models';
 import { StoreCatalog, StoreCategoryDetail, StoreHome, StoreProduct } from '@models/storefront.models';
-import { EMPTY, catchError, finalize, map } from 'rxjs';
+import { EMPTY, catchError, finalize, map, timeout } from 'rxjs';
 
 const CACHE_PREFIX = 'emprm_sf_';
 
@@ -38,7 +38,33 @@ export class StorefrontService {
   private readonly http = inject(HttpClient);
   private readonly state = inject(TransferState);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly baseUrl = `${environment.url_api}/storefront`;
+  private readonly baseUrl = this.resolveBaseUrl();
+
+  /**
+   * URL base de la API de tienda.
+   * - Navegador (y dev): la URL pública configurada.
+   * - SSR en producción: **loopback interno** `http://127.0.0.1:PORT/api`. El SSR
+   *   corre en el MISMO proceso Node que la API, así que llamarse por el dominio
+   *   público obligaría a salir y volver por el proxy/TLS de Hostinger (sobrecoste
+   *   y riesgo de cuelgue del propio render esperándose a sí mismo). El loopback
+   *   lo evita.
+   */
+  private resolveBaseUrl(): string {
+    if (this.isBrowser || !environment.production) {
+      return `${environment.url_api}/storefront`;
+    }
+    const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+    // Válvula de escape: si el loopback 127.0.0.1:PORT no fuese alcanzable en este
+    // host (p.ej. Passenger con socket), define SSR_API_BASE en el .env del
+    // servidor (ej. https://emprm.store/api) sin recompilar.
+    const override = proc?.env?.['SSR_API_BASE'];
+    if (override) {
+      return `${override.replace(/\/+$/, '')}/storefront`;
+    }
+    const port = proc?.env?.['PORT'] ?? '3000';
+    const apiPath = new URL(environment.url_api).pathname.replace(/\/+$/, ''); // p.ej. '/api'
+    return `http://127.0.0.1:${port}${apiPath}/storefront`;
+  }
 
   private readonly homeRes = this.make<StoreHome>();
   private readonly catalogRes = this.make<StoreCatalog>();
@@ -106,6 +132,9 @@ export class StorefrontService {
     this.http
       .get<ApiResponse<T>>(`${this.baseUrl}${path}`)
       .pipe(
+        // Corta un fetch lento para que el render SSR no quede colgado reteniendo
+        // RAM; al fallar, catchError conserva lo ya sembrado (TransferState/caché).
+        timeout({ each: 8000 }),
         map((r) => r.data),
         catchError(() => EMPTY), // resiliencia: conserva lo sembrado si la API falla.
         finalize(() => res.settled.set(true)),

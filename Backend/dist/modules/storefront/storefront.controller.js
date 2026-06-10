@@ -18,6 +18,7 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const public_decorator_1 = require("../../common/decorators/public.decorator");
 const storefront_service_1 = require("./storefront.service");
+const PUBLIC_CACHE = 'public, max-age=60, stale-while-revalidate=300';
 let StorefrontController = class StorefrontController {
     constructor(storefront) {
         this.storefront = storefront;
@@ -49,6 +50,7 @@ let StorefrontController = class StorefrontController {
 exports.StorefrontController = StorefrontController;
 __decorate([
     (0, common_1.Get)('home'),
+    (0, common_1.Header)('Cache-Control', PUBLIC_CACHE),
     (0, swagger_1.ApiOperation)({ summary: 'Datos de la portada: colecciones + productos destacados' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
@@ -57,6 +59,7 @@ __decorate([
 ], StorefrontController.prototype, "home", null);
 __decorate([
     (0, common_1.Get)('catalog'),
+    (0, common_1.Header)('Cache-Control', PUBLIC_CACHE),
     (0, swagger_1.ApiOperation)({ summary: 'Catálogo: todas las categorías activas' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
@@ -65,6 +68,7 @@ __decorate([
 ], StorefrontController.prototype, "catalog", null);
 __decorate([
     (0, common_1.Get)('sitemap'),
+    (0, common_1.Header)('Cache-Control', PUBLIC_CACHE),
     (0, swagger_1.ApiOperation)({ summary: 'Slugs activos (producto + categoría) para el sitemap.xml' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __metadata("design:type", Function),
@@ -73,6 +77,7 @@ __decorate([
 ], StorefrontController.prototype, "sitemap", null);
 __decorate([
     (0, common_1.Get)('categories/:slug'),
+    (0, common_1.Header)('Cache-Control', PUBLIC_CACHE),
     (0, swagger_1.ApiOperation)({ summary: 'Detalle de categoría + sus productos activos' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('slug')),
@@ -82,6 +87,7 @@ __decorate([
 ], StorefrontController.prototype, "category", null);
 __decorate([
     (0, common_1.Get)('products/:slug'),
+    (0, common_1.Header)('Cache-Control', PUBLIC_CACHE),
     (0, swagger_1.ApiOperation)({ summary: 'Detalle público de un producto (variantes incluidas)' }),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('slug')),

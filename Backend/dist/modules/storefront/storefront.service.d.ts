@@ -85,11 +85,18 @@ export interface StoreSitemap {
 export declare class StorefrontService {
     private readonly prisma;
     constructor(prisma: PrismaService);
+    private readonly cache;
+    private cached;
     getHome(): Promise<StoreHomePayload>;
+    private fetchHome;
     getCatalog(): Promise<StoreCatalogPayload>;
+    private fetchCatalog;
     getCategory(slug: string): Promise<StoreCategoryDetail | null>;
+    private fetchCategory;
     getProduct(slug: string): Promise<StoreProductDetail | null>;
+    private fetchProduct;
     getSitemap(): Promise<StoreSitemap>;
+    private fetchSitemap;
     private activeCategoryAndDescendants;
     private toCollection;
     private toCard;

@@ -5,6 +5,18 @@ import { PrismaService } from '../../database/prisma/prisma.service';
 /** Máximo de colecciones en la portada (el resto se verá en la pestaña de catálogo). */
 const COLLECTIONS_LIMIT = 3;
 
+/** Tope de productos destacados en la portada (evita serializar el catálogo entero). */
+const FEATURED_LIMIT = 60;
+
+/** Tope de productos por página de categoría (sin esto, una categoría grande carga
+ *  todo el catálogo en RAM y lo serializa en el HTML; era una fuente de OOM/IOPS). */
+const CATEGORY_PRODUCTS_LIMIT = 200;
+
+/** TTL de la caché en memoria de la tienda. Las lecturas repetidas (SSR, crawlers,
+ *  revalidación del navegador) golpean memoria en vez de MySQL, lo que baja el IOPS
+ *  y la RAM. 60 s = los cambios del admin se ven como muy tarde en 1 min. */
+const CACHE_TTL_MS = 60_000;
+
 /** Tarjeta de producto para la tienda pública (NUNCA incluye costPrice). */
 export interface StoreProductCard {
   id: string;
@@ -145,8 +157,40 @@ type CollectionRow = Prisma.CategoryGetPayload<{ select: typeof COLLECTION_SELEC
 export class StorefrontService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Portada: colecciones destacadas (máx 3) + todos los productos destacados. */
-  async getHome(): Promise<StoreHomePayload> {
+  /**
+   * Caché en memoria con TTL. Memoiza también la promesa en vuelo, así varias
+   * peticiones simultáneas (típico de crawlers) comparten una sola consulta a
+   * MySQL en vez de dispararla N veces. Es lo que corta el IOPS y los picos de RAM.
+   */
+  private readonly cache = new Map<string, { expires: number; value: Promise<unknown> }>();
+
+  private cached<T>(key: string, producer: () => Promise<T>): Promise<T> {
+    const now = Date.now();
+    const hit = this.cache.get(key);
+    if (hit && hit.expires > now) {
+      return hit.value as Promise<T>;
+    }
+    // Poda: las claves son por slug; un crawler pidiendo miles de slugs distintos
+    // podría hinchar el Map. Si crece, barremos las entradas ya caducadas.
+    if (this.cache.size > 500) {
+      for (const [k, v] of this.cache) {
+        if (v.expires <= now) this.cache.delete(k);
+      }
+    }
+    const value = producer().catch((err) => {
+      this.cache.delete(key); // no cachees un fallo: deja reintentar en la próxima
+      throw err;
+    });
+    this.cache.set(key, { expires: now + CACHE_TTL_MS, value });
+    return value;
+  }
+
+  /** Portada: colecciones destacadas (máx 3) + productos destacados. */
+  getHome(): Promise<StoreHomePayload> {
+    return this.cached('home', () => this.fetchHome());
+  }
+
+  private async fetchHome(): Promise<StoreHomePayload> {
     const [collections, products] = await Promise.all([
       this.prisma.category.findMany({
         where: { status: CategoryStatus.active, imageUrl: { not: null } },
@@ -157,6 +201,7 @@ export class StorefrontService {
       this.prisma.product.findMany({
         where: { status: ProductStatus.active, featured: true },
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+        take: FEATURED_LIMIT,
         include: CARD_INCLUDE,
       }),
     ]);
@@ -168,7 +213,11 @@ export class StorefrontService {
   }
 
   /** Catálogo: TODAS las categorías activas. */
-  async getCatalog(): Promise<StoreCatalogPayload> {
+  getCatalog(): Promise<StoreCatalogPayload> {
+    return this.cached('catalog', () => this.fetchCatalog());
+  }
+
+  private async fetchCatalog(): Promise<StoreCatalogPayload> {
     const categories = await this.prisma.category.findMany({
       where: { status: CategoryStatus.active },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
@@ -177,8 +226,12 @@ export class StorefrontService {
     return { categories: categories.map((c) => this.toCollection(c)) };
   }
 
-  /** Detalle de categoría + todos sus productos activos (incluye subcategorías). */
-  async getCategory(slug: string): Promise<StoreCategoryDetail | null> {
+  /** Detalle de categoría + sus productos activos (incluye subcategorías). */
+  getCategory(slug: string): Promise<StoreCategoryDetail | null> {
+    return this.cached(`category:${slug}`, () => this.fetchCategory(slug));
+  }
+
+  private async fetchCategory(slug: string): Promise<StoreCategoryDetail | null> {
     const cat = await this.prisma.category.findFirst({
       where: { slug, status: CategoryStatus.active },
       select: { ...COLLECTION_SELECT, id: true },
@@ -194,6 +247,7 @@ export class StorefrontService {
         categories: { some: { id: { in: categoryIds } } },
       },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      take: CATEGORY_PRODUCTS_LIMIT,
       include: CARD_INCLUDE,
     });
 
@@ -205,7 +259,11 @@ export class StorefrontService {
   }
 
   /** Detalle público de un producto (con todas sus variantes; sin costPrice). */
-  async getProduct(slug: string): Promise<StoreProductDetail | null> {
+  getProduct(slug: string): Promise<StoreProductDetail | null> {
+    return this.cached(`product:${slug}`, () => this.fetchProduct(slug));
+  }
+
+  private async fetchProduct(slug: string): Promise<StoreProductDetail | null> {
     const product = await this.prisma.product.findFirst({
       where: { slug, status: ProductStatus.active },
       include: DETAIL_INCLUDE,
@@ -217,7 +275,11 @@ export class StorefrontService {
   }
 
   /** Slugs activos (producto + categoría) con su fecha, para el sitemap.xml. */
-  async getSitemap(): Promise<StoreSitemap> {
+  getSitemap(): Promise<StoreSitemap> {
+    return this.cached('sitemap', () => this.fetchSitemap());
+  }
+
+  private async fetchSitemap(): Promise<StoreSitemap> {
     const [products, categories] = await Promise.all([
       this.prisma.product.findMany({
         where: { status: ProductStatus.active },

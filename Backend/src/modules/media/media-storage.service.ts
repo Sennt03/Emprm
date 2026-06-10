@@ -6,6 +6,13 @@ import { join, resolve } from 'node:path';
 import sharp from 'sharp';
 import { AppConfig } from '../../config/configuration';
 
+// Hosting compartido (Hostinger/CloudLinux): libvips por defecto usa 1 hilo por
+// core (en un box que reporta muchas CPUs son demasiados) y cachea buffers en
+// memoria. En un plan con límites duros de RAM/procesos (LVE) eso provoca picos
+// que disparan OOM/"spawn EAGAIN". Lo limitamos a 1 hilo y sin caché.
+sharp.concurrency(1);
+sharp.cache(false);
+
 /** Datos derivados de un archivo procesado, listos para persistir como MediaAsset. */
 export interface ProcessedAsset {
   filename: string;

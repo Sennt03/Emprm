@@ -79,6 +79,31 @@ Si el backend no se reinicia solo tras el deploy: hPanel → Node.js → **Resta
 
 ---
 
+## Recursos en Hostinger compartido (evitar que "tumbe las apps")
+
+En plan compartido (CloudLinux/LVE) hay límites duros de RAM y de procesos por
+cuenta. UNA app Node que hace API + SSR + Prisma + sharp, sin topes, crece hasta
+superarlos y el kernel mata procesos (síntomas: la app se cae al recibir tráfico
+o `spawn EAGAIN`). Hay que topar cada capa:
+
+1. **En hPanel → Node.js → Environment variables** (NO basta el `.env`, porque
+   `NODE_OPTIONS` lo lee V8 antes de que dotenv cargue el `.env`):
+   ```
+   NODE_OPTIONS=--max-old-space-size=512
+   TOKIO_WORKER_THREADS=2
+   UV_THREADPOOL_SIZE=2
+   ```
+2. **Pool de Prisma**: en `DATABASE_URL` añade `?connection_limit=3&pool_timeout=20`
+   (por defecto Prisma abre (cores*2)+1 conexiones; en un box con muchos cores son
+   decenas).
+3. **sharp/libvips**: ya topado en código (`sharp.concurrency(1)` + `sharp.cache(false)`
+   en `media-storage.service.ts`).
+4. **Sockets**: déjalos apagados si no los usas (`ENABLE_SOCKETS=false`).
+
+Tras cambiar variables en el panel: **Restart** la app Node.
+
+---
+
 ## Checklist
 - [ ] `https://emprm.store/` carga la tienda; "ver código fuente" trae HTML con
       contenido (SSR ok, no `<app-root></app-root>` vacío).

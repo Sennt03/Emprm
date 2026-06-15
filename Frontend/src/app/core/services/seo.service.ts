@@ -10,6 +10,8 @@ export interface SeoConfig {
   /** Imagen para Open Graph/Twitter (relativa o absoluta). */
   image?: string | null;
   type?: 'website' | 'product' | 'article';
+  /** Excluye la página de los buscadores (p. ej. enlaces de pedido). */
+  noindex?: boolean;
 }
 
 const SITE_NAME = 'EMPRM';
@@ -41,6 +43,7 @@ export class SeoService {
 
     this.titleSrv.setTitle(cfg.title);
     this.setName('description', description);
+    this.meta.updateTag({ name: 'robots', content: cfg.noindex ? 'noindex, nofollow' : 'index, follow' });
 
     this.setProp('og:title', cfg.title);
     this.setProp('og:description', description);

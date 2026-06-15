@@ -1,10 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { formatPrice } from '../../store/shared/price.pipe';
+import { environment } from '@env/environment';
+import { encodeOrder } from '../../store/shared/order-link';
 
 const CART_KEY = 'emprm_cart';
 /** Número de WhatsApp de la tienda para finalizar el pedido. */
-const WHATSAPP_NUMBER = '51987654321';
+export const WHATSAPP_NUMBER = '51987654321';
+/** Origen público de la tienda (sin barra final) para construir enlaces absolutos. */
+const SITE_ORIGIN = environment.url_site.replace(/\/+$/, '');
 
 export interface CartItem {
   /** Clave única de la línea (id de variante). */
@@ -45,13 +48,38 @@ export class CartService {
     this.itemsState().reduce((sum, i) => sum + i.price * i.qty, 0),
   );
 
-  /** Enlace de WhatsApp con el pedido prellenado (incluye precios y total). */
+  /**
+   * Token del pedido (base64url con slug + variante + cantidad de cada línea).
+   * No incluye precios: estos se resuelven en `/orden/:token` desde el catálogo.
+   */
+  readonly orderToken = computed(() =>
+    encodeOrder(
+      this.itemsState().map((i) => ({ slug: i.slug, variantId: i.variantId, qty: i.qty })),
+    ),
+  );
+
+  /** URL absoluta a la página de detalle del pedido (valor real, no editable). */
+  readonly orderUrl = computed(() => `${SITE_ORIGIN}/orden/${this.orderToken()}`);
+
+  /**
+   * Enlace de WhatsApp con el pedido prellenado. El texto lista solo los productos
+   * (sin precios, porque el chat es editable) y adjunta el enlace `/orden/:token`,
+   * que abre el detalle con variantes, cantidades, precios y total reales.
+   */
   readonly whatsappUrl = computed(() => {
-    const lines = this.itemsState().map((i) => {
+    const items = this.itemsState();
+    if (!items.length) {
+      return `https://wa.me/${WHATSAPP_NUMBER}`;
+    }
+    const lines = items.map((i) => {
       const opts = i.options.map((o) => `${o.type}: ${o.value}`).join(', ');
-      return `• ${i.name}${opts ? ` (${opts})` : ''} x${i.qty} — ${formatPrice(i.price * i.qty)}`;
+      return `• ${i.name}${opts ? ` (${opts})` : ''} x${i.qty}`;
     });
-    const msg = `Hola EMPRM, quiero hacer este pedido:\n\n${lines.join('\n')}\n\nTotal: ${formatPrice(this.total())} (${this.count()} ${this.count() === 1 ? 'producto' : 'productos'})`;
+    const count = this.count();
+    const msg =
+      `Hola EMPRM, quiero hacer este pedido:\n\n${lines.join('\n')}\n\n` +
+      `(${count} ${count === 1 ? 'producto' : 'productos'})\n\n` +
+      `Detalle, cantidades y total del pedido:\n${this.orderUrl()}`;
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
   });
 

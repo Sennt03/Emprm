@@ -32,6 +32,11 @@ export const STORE_ROUTES: Routes = [
           import('./pages/producto/producto.component').then((m) => m.ProductoComponent),
       },
       {
+        path: 'orden/:token',
+        data: { hero: false },
+        loadComponent: () => import('./pages/orden/orden.component').then((m) => m.OrdenComponent),
+      },
+      {
         path: 'historia',
         loadComponent: () =>
           import('./pages/historia/historia.component').then((m) => m.HistoriaComponent),

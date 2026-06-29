@@ -4,6 +4,7 @@ import { StorefrontService } from '@services/storefront.service';
 import { CollectionCardComponent } from '../../components/collection-card/collection-card.component';
 import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive';
+import { HERO_CATALOGO_IMAGE } from '../../shared/store.config';
 
 /** Página "Catálogo": hero + grid con TODAS las categorías activas. */
 @Component({
@@ -12,7 +13,8 @@ import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-page-hero pill="Catálogo" title="Nuestro Catálogo"
-      subtitle="Explora nuestras colecciones exclusivas diseñadas para el hombre moderno">
+      subtitle="Explora nuestras colecciones exclusivas diseñadas para el hombre moderno"
+      [image]="catalogoImage">
       <svg ph-icon viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
         <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
@@ -63,6 +65,8 @@ import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive
 export class CatalogoComponent {
   private readonly storefront = inject(StorefrontService);
   private readonly seo = inject(SeoService);
+
+  readonly catalogoImage = HERO_CATALOGO_IMAGE;
 
   readonly categories = computed(() => this.storefront.catalog()?.categories ?? []);
 

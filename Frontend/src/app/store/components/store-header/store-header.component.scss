@@ -32,13 +32,24 @@
 }
 
 .hd__brand {
-  font-family: var(--st-font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: inherit;
+  display: inline-flex;
+  align-items: center;
   text-decoration: none;
-  white-space: nowrap;
+  flex: none;
+}
+
+.hd__logo {
+  height: 48px;
+  width: auto;
+  display: block;
+  /* Logo negro → se invierte a blanco sobre hero oscuro. */
+  filter: brightness(0) invert(1);
+  transition: filter 0.35s ease;
+}
+
+.hd--solid .hd__logo {
+  /* Header sólido blanco → logo negro sin filtro. */
+  filter: none;
 }
 
 .hd__nav {

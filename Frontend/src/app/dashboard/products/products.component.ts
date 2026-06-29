@@ -17,6 +17,7 @@ import {
 } from '@shared/components/data-table/data-table.component';
 import { materialImports } from '@shared/material/material.imports';
 import { getApiErrorMessage } from '@shared/utils/http-error';
+import { formatPrice } from '../../store/shared/price.pipe';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
@@ -171,7 +172,7 @@ export class ProductsComponent {
   }
 
   formatPrice(value: number): string {
-    return `$${value.toFixed(2)}`;
+    return formatPrice(value);
   }
 
   private resetAndLoad(): void {

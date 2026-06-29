@@ -11,6 +11,7 @@ interface StoreInput {
   phone: string;
   email: string;
   whatsapp: string;
+  directionsUrl: string;
 }
 
 interface Store extends StoreInput {
@@ -114,20 +115,22 @@ export class TiendasComponent {
   readonly stores: Store[] = (
     [
       {
-        name: 'Tienda Principal - Miraflores',
-        address: 'Av. Larco 1234, Miraflores, Lima',
-        hours: 'Lun - Sáb: 10:00 AM - 9:00 PM | Dom: 11:00 AM - 7:00 PM',
-        phone: '+51 987 654 321',
-        email: 'miraflores@emprm.com',
-        whatsapp: 'https://wa.me/51987654321',
+        name: 'EMPRM NORTE',
+        address: 'Quito Norte, Ecuador',
+        hours: 'Lun - Sáb: 10:00 AM - 8:00 PM | Dom: 11:00 AM - 6:00 PM',
+        phone: '+593 99 862 1656',
+        email: 'contacto@emprm.store',
+        whatsapp: 'https://wa.me/593998621656',
+        directionsUrl: 'https://maps.app.goo.gl/W6L9MiT2i26QrSqv9',
       },
       {
-        name: 'Tienda San Isidro',
-        address: 'Av. Conquistadores 567, San Isidro, Lima',
-        hours: 'Lun - Sáb: 10:00 AM - 9:00 PM | Dom: 11:00 AM - 7:00 PM',
-        phone: '+51 987 654 322',
-        email: 'sanisidro@emprm.com',
-        whatsapp: 'https://wa.me/51987654322',
+        name: 'EMPRM CENTRO',
+        address: 'Quito Centro, Ecuador',
+        hours: 'Lun - Sáb: 10:00 AM - 8:00 PM | Dom: 11:00 AM - 6:00 PM',
+        phone: '+593 99 862 1656',
+        email: 'contacto@emprm.store',
+        whatsapp: 'https://wa.me/593998621656',
+        directionsUrl: 'https://maps.app.goo.gl/dwAyuY4hh3kktPri6',
       },
     ] satisfies StoreInput[]
   ).map((s) => this.buildStore(s));
@@ -141,11 +144,11 @@ export class TiendasComponent {
   }
 
   private buildStore(s: StoreInput): Store {
-    const q = encodeURIComponent(`${s.address}, Perú`);
+    const q = encodeURIComponent(`${s.name} ${s.address}`);
     return {
       ...s,
       tel: s.phone.replace(/\s+/g, ''),
-      directions: `https://www.google.com/maps/dir/?api=1&destination=${q}`,
+      directions: s.directionsUrl,
       mapEmbed: this.sanitizer.bypassSecurityTrustResourceUrl(
         `https://www.google.com/maps?q=${q}&output=embed`,
       ),

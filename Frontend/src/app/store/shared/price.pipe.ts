@@ -12,7 +12,7 @@ export function formatPrice(value: number | null | undefined): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return `${CURRENCY} ${amount}`;
+  return `${CURRENCY}${amount}`;
 }
 
 /** Pipe puro para mostrar precios en las plantillas: `{{ price | price }}`. */

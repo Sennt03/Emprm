@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { HERO_IMAGE } from '../../shared/store.config';
 
 /**
@@ -103,13 +103,15 @@ import { HERO_IMAGE } from '../../shared/store.config';
     @keyframes ph-zoom { from { transform: scale(1.1); } to { transform: scale(1); } }
   `,
   host: {
-    '[style.--ph-image]': 'bgImage',
+    '[style.--ph-image]': 'bgImage()',
   },
 })
 export class PageHeroComponent {
   readonly pill = input<string | null>(null);
   readonly title = input.required<string>();
   readonly subtitle = input<string | null>(null);
+  readonly image = input<string | null>(null);
 
-  readonly bgImage = `url("${HERO_IMAGE}")`;
+  readonly bgImage = computed(() => `url("${this.image() ?? HERO_IMAGE}")`);
+
 }

@@ -1,5 +1,6 @@
 :host {
   display: block;
+  overflow-x: hidden;
 }
 
 .pdp {
@@ -7,6 +8,8 @@
   margin: 0 auto;
   /* Cabecera fija sólida: deja aire arriba. */
   padding: clamp(88px, 12vh, 120px) clamp(16px, 5vw, 40px) clamp(48px, 7vw, 90px);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .pdp__inner {
@@ -14,6 +17,7 @@
   grid-template-columns: 1fr;
   gap: clamp(24px, 4vw, 56px);
   align-items: start;
+  min-width: 0;
 }
 
 .pdp__crumbs {
@@ -53,6 +57,9 @@
   border-radius: var(--st-radius);
   background: var(--st-cream);
   border: 1px solid var(--st-line);
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .pdp__box-label {
   display: block;
@@ -223,6 +230,10 @@
   font-size: 0.9rem;
 }
 
+.pdp__info {
+  min-width: 0;
+}
+
 .pdp__actions {
   display: flex;
   flex-direction: column;
@@ -230,9 +241,10 @@
   margin-top: 8px;
 }
 .pdp__add {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   gap: 10px;
   padding: 17px;
   border: 0;
@@ -257,15 +269,17 @@
   cursor: not-allowed;
 }
 .pdp__keep {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
   padding: 16px;
   border: 1px solid var(--st-espresso);
   border-radius: 14px;
   color: var(--st-espresso);
   font-weight: 600;
   text-decoration: none;
+  box-sizing: border-box;
   transition: background-color 0.2s ease;
 }
 .pdp__keep:hover {

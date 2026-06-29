@@ -26,7 +26,7 @@ import { HERO_IMAGE } from '../../../shared/store.config';
         <p class="hero__tagline">Elegancia, confianza y estilo para el hombre moderno</p>
 
         <div class="hero__actions">
-          <a class="hbtn hbtn--cream" routerLink="/" fragment="destacados">
+          <a class="hbtn hbtn--cream" routerLink="/catalogo">
             Ver Catálogo
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.8"

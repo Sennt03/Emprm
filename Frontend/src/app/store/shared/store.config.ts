@@ -1,7 +1,10 @@
 /** Configuración compartida de la tienda pública. */
 
-/** Imagen de marca usada en los heros (servida desde `public/img/`). */
-export const HERO_IMAGE = '/img/hero.webp';
+/** Banner principal (home + páginas internas). */
+export const HERO_IMAGE = '/img/banner-home.jpg';
+
+/** Banner exclusivo de la página Catálogo. */
+export const HERO_CATALOGO_IMAGE = '/img/banner-catalogo.jpg';
 
 export interface StoreNavLink {
   label: string;

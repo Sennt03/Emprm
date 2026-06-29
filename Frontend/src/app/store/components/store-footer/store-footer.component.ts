@@ -1,3 +1,4 @@
+import { NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STORE_NAV } from '../../shared/store.config';
@@ -5,13 +6,13 @@ import { STORE_NAV } from '../../shared/store.config';
 /** Pie de página de la tienda: marca, navegación, contacto y redes sociales. */
 @Component({
   selector: 'app-store-footer',
-  imports: [RouterLink],
+  imports: [RouterLink, NgOptimizedImage],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <footer class="ft">
       <div class="ft__inner">
         <div class="ft__brand-col">
-          <span class="ft__brand">EMPRM</span>
+          <img ngSrc="/img/logo-white.png" width="80" height="80" alt="EMPRM" class="ft__logo" />
           <p class="ft__tagline">Elegancia, confianza y estilo para el hombre moderno.</p>
         </div>
 
@@ -32,21 +33,21 @@ import { STORE_NAV } from '../../shared/store.config';
                 <path d="M5 4h3l2 5-2.5 1.5a11 11 0 005 5L14 13l5 2v3a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"
                   stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
               </svg>
-              <a class="ft__link" href="tel:+51987654321">+51 987 654 321</a>
+              <a class="ft__link" href="tel:+593998621656">+593 99 862 1656</a>
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
                 <path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
               </svg>
-              <a class="ft__link" href="mailto:contacto@emprm.com">contacto&#64;emprm.com</a>
+              <a class="ft__link" href="mailto:contacto@emprm.store">contacto&#64;emprm.store</a>
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="1.5" />
                 <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.5" />
               </svg>
-              <span>Lima, Perú</span>
+              <span>Ecuador</span>
             </li>
           </ul>
         </div>
@@ -54,20 +55,19 @@ import { STORE_NAV } from '../../shared/store.config';
         <div class="ft__col">
           <h3 class="ft__title">Síguenos</h3>
           <div class="ft__social">
-            <a class="ft__social-btn" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+            <a class="ft__social-btn" href="https://www.instagram.com/emprm.ec?igsh=MXBucGMwNHhidXRjbA==" target="_blank" rel="noopener" aria-label="Instagram">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.6" />
                 <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6" />
                 <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
               </svg>
             </a>
-            <a class="ft__social-btn" href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+            <a class="ft__social-btn" href="https://www.tiktok.com/@emporioum96?_r=1&_t=ZS-97QWzglahAi" target="_blank" rel="noopener" aria-label="TikTok">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M14 9V7c0-1 .5-1.5 1.5-1.5H17V2.5h-2.5C12 2.5 10.5 4 10.5 6.8V9H8.5v3h2v9.5h3.5V12H17l.5-3H14z"
-                  fill="currentColor" />
+                <path d="M16 3c.3 2.2 1.8 3.9 4 4.2v3c-1.5 0-2.9-.5-4-1.3V15a6 6 0 11-6-6c.34 0 .67.03 1 .09v3.04A3 3 0 1013 15V3h3z" fill="currentColor" />
               </svg>
             </a>
-            <a class="ft__social-btn" href="https://wa.me/51987654321" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <a class="ft__social-btn" href="https://wa.me/message/H7KMJRCKRF4DI1" target="_blank" rel="noopener" aria-label="WhatsApp">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M3.5 20.5l1.3-4.6A8 8 0 1112 20a8 8 0 01-4-1.1l-4.5 1.6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
                 <path d="M9 8.5c.2 2.5 2 4.3 4.5 4.5.6 0 1.2-.6 1.2-1.2l-1.6-.8-.8.8a4 4 0 01-1.6-1.6l.8-.8-.8-1.6c-.6 0-1.3.6-1.3 1.2z" fill="currentColor" />

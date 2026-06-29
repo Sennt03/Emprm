@@ -3,7 +3,7 @@ import { SeoService } from '@services/seo.service';
 import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
 import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive';
 
-type SocialIcon = 'instagram' | 'tiktok' | 'facebook' | 'whatsapp';
+type SocialIcon = 'instagram' | 'tiktok' | 'whatsapp';
 
 interface Social {
   name: string;
@@ -48,11 +48,6 @@ interface Social {
                       <path d="M16 3c.3 2.2 1.8 3.9 4 4.2v3c-1.5 0-2.9-.5-4-1.3V15a6 6 0 11-6-6c.34 0 .67.03 1 .09v3.04A3 3 0 1013 15V3h3z" fill="currentColor" />
                     </svg>
                   }
-                  @case ('facebook') {
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="M14 9V7c0-1 .5-1.5 1.5-1.5H17V2.5h-2.5C12 2.5 10.5 4 10.5 6.8V9H8.5v3h2v9.5h3.5V12H17l.5-3H14z" fill="currentColor" />
-                    </svg>
-                  }
                   @case ('whatsapp') {
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                       <path d="M3.5 20.5l1.3-4.6A8 8 0 1112 20a8 8 0 01-4-1.1l-4.5 1.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
@@ -91,10 +86,9 @@ export class RedesComponent {
   private readonly seo = inject(SeoService);
 
   readonly socials: Social[] = [
-    { name: 'Instagram', handle: '@emprm', badge: '45.2K', desc: 'Sigue nuestras últimas colecciones, looks del día y contenido exclusivo', url: 'https://instagram.com/emprm', cta: 'Visitar perfil', icon: 'instagram' },
-    { name: 'TikTok', handle: '@emprm', badge: '28.5K', desc: 'Videos de moda, tips de estilo y tendencias', url: 'https://tiktok.com/@emprm', cta: 'Visitar perfil', icon: 'tiktok' },
-    { name: 'Facebook', handle: 'EMPRM', badge: '32.8K', desc: 'Únete a nuestra comunidad y mantente al día con nuestras novedades', url: 'https://facebook.com', cta: 'Visitar perfil', icon: 'facebook' },
-    { name: 'WhatsApp', handle: '+51 987 654 321', badge: 'Chat directo', desc: 'Contáctanos directamente para consultas y pedidos personalizados', url: 'https://wa.me/51987654321', cta: 'Abrir chat', icon: 'whatsapp' },
+    { name: 'Instagram', handle: '@emprm.ec', badge: '', desc: 'Sigue nuestras últimas colecciones, looks del día y contenido exclusivo', url: 'https://www.instagram.com/emprm.ec?igsh=MXBucGMwNHhidXRjbA==', cta: 'Visitar perfil', icon: 'instagram' },
+    { name: 'TikTok', handle: '@emporioum96', badge: '', desc: 'Videos de moda, tips de estilo y tendencias', url: 'https://www.tiktok.com/@emporioum96?_r=1&_t=ZS-97QWzglahAi', cta: 'Visitar perfil', icon: 'tiktok' },
+    { name: 'WhatsApp', handle: '+593 99 862 1656', badge: 'Chat directo', desc: 'Contáctanos directamente para consultas y pedidos personalizados', url: 'https://wa.me/message/H7KMJRCKRF4DI1', cta: 'Abrir chat', icon: 'whatsapp' },
   ];
 
   readonly hashtags = ['#EMPRMStyle', '#ModaMasculina', '#EstiloEMPRM', '#EleganciaModerna'];

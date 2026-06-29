@@ -1,4 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -21,12 +21,14 @@ import { STORE_NAV } from '../../shared/store.config';
  */
 @Component({
   selector: 'app-store-header',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NgOptimizedImage],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="hd" [class.hd--solid]="!transparent()" [class.hd--menu-open]="menuOpen()">
       <div class="hd__inner">
-        <a class="hd__brand" routerLink="/" aria-label="EMPRM — Inicio" (click)="closeMenu()">EMPRM</a>
+        <a class="hd__brand" routerLink="/" aria-label="EMPRM — Inicio" (click)="closeMenu()">
+          <img ngSrc="/img/logo.png" width="52" height="52" alt="EMPRM" priority class="hd__logo" />
+        </a>
 
         <nav class="hd__nav" aria-label="Navegación principal">
           @for (item of nav; track item.link) {

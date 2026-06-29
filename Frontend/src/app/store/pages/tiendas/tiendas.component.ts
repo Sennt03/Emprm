@@ -9,7 +9,6 @@ interface StoreInput {
   address: string;
   hours: string;
   phone: string;
-  email: string;
   whatsapp: string;
   directionsUrl: string;
 }
@@ -67,15 +66,6 @@ interface Store extends StoreInput {
                 </span>
                 <div><span class="store__label">Teléfono</span><a class="store__val store__val--link" [href]="'tel:' + s.tel">{{ s.phone }}</a></div>
               </li>
-              <li class="store__row">
-                <span class="store__ic">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                  </svg>
-                </span>
-                <div><span class="store__label">Email</span><a class="store__val store__val--link" [href]="'mailto:' + s.email">{{ s.email }}</a></div>
-              </li>
             </ul>
 
             <div class="store__actions">
@@ -119,7 +109,6 @@ export class TiendasComponent {
         address: 'Quito Norte, Ecuador',
         hours: 'Lun - Sáb: 10:00 AM - 8:00 PM | Dom: 11:00 AM - 6:00 PM',
         phone: '+593 99 862 1656',
-        email: 'contacto@emprm.store',
         whatsapp: 'https://wa.me/593998621656',
         directionsUrl: 'https://maps.app.goo.gl/W6L9MiT2i26QrSqv9',
       },
@@ -128,7 +117,6 @@ export class TiendasComponent {
         address: 'Quito Centro, Ecuador',
         hours: 'Lun - Sáb: 10:00 AM - 8:00 PM | Dom: 11:00 AM - 6:00 PM',
         phone: '+593 99 862 1656',
-        email: 'contacto@emprm.store',
         whatsapp: 'https://wa.me/593998621656',
         directionsUrl: 'https://maps.app.goo.gl/dwAyuY4hh3kktPri6',
       },

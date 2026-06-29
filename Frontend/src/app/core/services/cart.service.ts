@@ -5,7 +5,7 @@ import { encodeOrder } from '../../store/shared/order-link';
 
 const CART_KEY = 'emprm_cart';
 /** Número de WhatsApp de la tienda para finalizar el pedido. */
-export const WHATSAPP_NUMBER = '51987654321';
+export const WHATSAPP_NUMBER = '593998621656';
 /** Origen público de la tienda (sin barra final) para construir enlaces absolutos. */
 const SITE_ORIGIN = environment.url_site.replace(/\/+$/, '');
 

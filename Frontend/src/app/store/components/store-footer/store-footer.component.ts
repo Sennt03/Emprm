@@ -37,13 +37,6 @@ import { STORE_NAV } from '../../shared/store.config';
             </li>
             <li>
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.5" />
-                <path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-              </svg>
-              <a class="ft__link" href="mailto:contacto@emprm.store">contacto&#64;emprm.store</a>
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="1.5" />
                 <circle cx="12" cy="10" r="2.4" stroke="currentColor" stroke-width="1.5" />
               </svg>

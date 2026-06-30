@@ -1,11 +1,15 @@
 :host {
   display: block;
+  width: 100%;
+  min-width: 0;
 }
 
 .gal {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
+  min-width: 0;
 }
 .gal__main {
   position: relative;
@@ -13,6 +17,7 @@
   overflow: hidden;
   background: var(--st-sand);
   aspect-ratio: 3 / 4;
+  width: 100%;
 }
 .gal__open {
   position: absolute;
@@ -75,6 +80,8 @@
   overflow-x: auto;
   padding-bottom: 4px;
   scrollbar-width: thin;
+  width: 100%;
+  min-width: 0;
 }
 .gal__thumb {
   flex: 0 0 auto;

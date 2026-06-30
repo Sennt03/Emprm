@@ -208,6 +208,7 @@ export class OrdenComponent {
       title: 'Tu pedido · EMPRM',
       description: 'Detalle de tu pedido en EMPRM.',
       noindex: true,
+      image: null,
     });
 
     // Carga (SWR) los productos del pedido en cuanto cambia el token.

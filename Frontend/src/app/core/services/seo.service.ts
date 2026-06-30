@@ -15,7 +15,7 @@ export interface SeoConfig {
 }
 
 const SITE_NAME = 'EMPRM';
-const LOCALE = 'es_PE';
+const LOCALE = 'es_EC';
 
 /**
  * Servicio SEO centralizado (SSR-safe): título, meta description, canonical,
@@ -30,7 +30,7 @@ export class SeoService {
   private readonly router = inject(Router);
 
   private readonly origin = environment.url_site.replace(/\/+$/, '');
-  private readonly defaultImage = `${this.origin}/img/hero.webp`;
+  private readonly defaultImage = `${this.origin}/img/banner-home.jpg`;
 
   /** Aplica el SEO de la página (limpia los JSON-LD de página previos). */
   update(cfg: SeoConfig): void {
@@ -38,7 +38,8 @@ export class SeoService {
 
     const description = (cfg.description ?? '').replace(/\s+/g, ' ').trim().slice(0, 300);
     const url = this.canonicalUrl();
-    const image = this.absolute(cfg.image) ?? this.defaultImage;
+    // undefined → usa el banner por defecto; null → sin imagen (no preview)
+    const image = cfg.image === undefined ? this.defaultImage : this.absolute(cfg.image);
     const type = cfg.type ?? 'website';
 
     this.titleSrv.setTitle(cfg.title);
@@ -49,14 +50,19 @@ export class SeoService {
     this.setProp('og:description', description);
     this.setProp('og:type', type);
     this.setProp('og:url', url);
-    this.setProp('og:image', image);
+    if (image) {
+      this.setProp('og:image', image);
+    }
     this.setProp('og:site_name', SITE_NAME);
     this.setProp('og:locale', LOCALE);
 
-    this.setName('twitter:card', 'summary_large_image');
+    const twitterCard = image ? 'summary_large_image' : 'summary';
+    this.setName('twitter:card', twitterCard);
     this.setName('twitter:title', cfg.title);
     this.setName('twitter:description', description);
-    this.setName('twitter:image', image);
+    if (image) {
+      this.setName('twitter:image', image);
+    }
 
     this.setCanonical(url);
   }

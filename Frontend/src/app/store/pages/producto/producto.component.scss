@@ -230,8 +230,10 @@
   font-size: 0.9rem;
 }
 
+.pdp__gallery,
 .pdp__info {
   min-width: 0;
+  max-width: 100%;
 }
 
 .pdp__actions {

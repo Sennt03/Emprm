@@ -17,6 +17,13 @@ const CATEGORY_PRODUCTS_LIMIT = 200;
  *  y la RAM. 60 s = los cambios del admin se ven como muy tarde en 1 min. */
 const CACHE_TTL_MS = 60_000;
 
+/** TTL corto para respuestas "no encontrado" (null). Si el admin acaba de activar
+ *  o crear una entidad, debe verse casi al instante en vez de esperar el TTL
+ *  completo. Sin esto, pedir el slug de un producto/categoría aún inactivo lo
+ *  dejaba memoizado como "no encontrado" hasta 60 s (se veía como "Categoría no
+ *  encontrada" un rato después de activarla). Seguimos protegiendo de avalanchas. */
+const NEGATIVE_CACHE_TTL_MS = 5_000;
+
 /** Tarjeta de producto para la tienda pública (NUNCA incluye costPrice). */
 export interface StoreProductCard {
   id: string;
@@ -177,12 +184,27 @@ export class StorefrontService {
         if (v.expires <= now) this.cache.delete(k);
       }
     }
-    const value = producer().catch((err) => {
-      this.cache.delete(key); // no cachees un fallo: deja reintentar en la próxima
-      throw err;
-    });
-    this.cache.set(key, { expires: now + CACHE_TTL_MS, value });
-    return value;
+    const entry: { expires: number; value: Promise<unknown> } = {
+      expires: now + CACHE_TTL_MS,
+      value: undefined as unknown as Promise<unknown>,
+    };
+    entry.value = producer()
+      .then((result) => {
+        // "No encontrado" (null) se memoiza solo unos segundos: activar/crear una
+        // entidad se refleja casi al instante. Mientras la promesa está en vuelo
+        // sigue compartida (expira a 60 s), así que la protección de avalanchas
+        // se mantiene.
+        if (result == null) {
+          entry.expires = Date.now() + NEGATIVE_CACHE_TTL_MS;
+        }
+        return result;
+      })
+      .catch((err) => {
+        this.cache.delete(key); // no cachees un fallo: deja reintentar en la próxima
+        throw err;
+      });
+    this.cache.set(key, entry);
+    return entry.value as Promise<T>;
   }
 
   /** Portada: colecciones destacadas (máx 3) + productos destacados. */

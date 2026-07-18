@@ -4,6 +4,7 @@ import { SeoService } from '@services/seo.service';
 import { CartDrawerComponent } from '../components/cart-drawer/cart-drawer.component';
 import { StoreFooterComponent } from '../components/store-footer/store-footer.component';
 import { StoreHeaderComponent } from '../components/store-header/store-header.component';
+import { WhatsappFabComponent } from '../components/whatsapp-fab/whatsapp-fab.component';
 
 /**
  * Layout de la tienda pública: cabecera + contenido + pie, y define los tokens
@@ -12,7 +13,13 @@ import { StoreHeaderComponent } from '../components/store-header/store-header.co
  */
 @Component({
   selector: 'app-store-layout',
-  imports: [RouterOutlet, StoreHeaderComponent, StoreFooterComponent, CartDrawerComponent],
+  imports: [
+    RouterOutlet,
+    StoreHeaderComponent,
+    StoreFooterComponent,
+    CartDrawerComponent,
+    WhatsappFabComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="store-shell">
@@ -20,6 +27,7 @@ import { StoreHeaderComponent } from '../components/store-header/store-header.co
       <main class="store-shell__main"><router-outlet /></main>
       <app-store-footer />
       <app-cart-drawer />
+      <app-whatsapp-fab />
     </div>
   `,
   styleUrl: './store-layout.component.scss',

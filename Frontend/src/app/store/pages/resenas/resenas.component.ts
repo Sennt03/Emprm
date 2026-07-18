@@ -112,12 +112,12 @@ export class ResenasComponent {
   readonly stars = Array.from({ length: 5 });
 
   readonly reviews: Review[] = [
-    { name: 'Carlos Mendoza', location: 'Lima', product: 'Traje Negro Clásico', text: 'La calidad de las prendas es excepcional. Cada pieza que he comprado ha superado mis expectativas. La atención al detalle y los acabados son de primer nivel.' },
-    { name: 'Roberto Silva', location: 'Miraflores', product: 'Camisa Premium Azul', text: 'Elegancia y confort en cada prenda. Mi marca favorita de moda masculina. Los diseños son atemporales y la calidad inigualable.' },
-    { name: 'Diego Vargas', location: 'San Isidro', product: 'Conjunto Gris Ejecutivo', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
-    { name: 'Andrés Torres', location: 'Surco', product: 'Chaqueta Negra Premium', text: 'Desde que descubrí EMPRM no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
-    { name: 'Javier Ríos', location: 'La Molina', product: 'Camisa Premium Azul', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
-    { name: 'Martín Castro', location: 'Barranco', product: 'Traje Negro Clásico', text: 'Profesionalismo y elegancia en cada compra. La experiencia EMPRM es de otro nivel.' },
+    { name: 'Carlos Mendoza', location: 'Quito', product: 'Traje Negro Clásico', text: 'La calidad de las prendas es excepcional. Cada pieza que he comprado ha superado mis expectativas. La atención al detalle y los acabados son de primer nivel.' },
+    { name: 'Roberto Silva', location: 'Quito', product: 'Camisa Premium Azul', text: 'Elegancia y confort en cada prenda. Mi marca favorita de moda masculina. Los diseños son atemporales y la calidad inigualable.' },
+    { name: 'Diego Vargas', location: 'Quito', product: 'Conjunto Gris Ejecutivo', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
+    { name: 'Andrés Torres', location: 'Quito', product: 'Chaqueta Negra Premium', text: 'Desde que descubrí EMPRM no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
+    { name: 'Javier Ríos', location: 'Quito', product: 'Camisa Premium Azul', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
+    { name: 'Martín Castro', location: 'Quito', product: 'Traje Negro Clásico', text: 'Profesionalismo y elegancia en cada compra. La experiencia EMPRM es de otro nivel.' },
   ];
 
   readonly active = signal(0);

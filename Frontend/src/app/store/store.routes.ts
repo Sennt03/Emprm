@@ -51,6 +51,13 @@ export const STORE_ROUTES: Routes = [
         loadComponent: () => import('./pages/redes/redes.component').then((m) => m.RedesComponent),
       },
       {
+        // Enlace público que los vendedores comparten con el cliente. No va en el menú.
+        path: 'datos-envio',
+        data: { hero: false },
+        loadComponent: () =>
+          import('./pages/datos-envio/datos-envio.component').then((m) => m.DatosEnvioComponent),
+      },
+      {
         path: 'tiendas',
         loadComponent: () =>
           import('./pages/tiendas/tiendas.component').then((m) => m.TiendasComponent),

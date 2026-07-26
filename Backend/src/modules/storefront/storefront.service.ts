@@ -75,6 +75,8 @@ export interface StoreProductVariant {
   stock: number;
   stockPolicy: string;
   color: string | null;
+  /** Asset de la imagen a la que salta la galería al elegir la variante (o null). */
+  imageAssetId: string | null;
   isDefault: boolean;
   options: { optionType: string; value: string }[];
 }
@@ -89,7 +91,13 @@ export interface StoreProductDetail {
   metaTitle: string | null;
   metaDescription: string | null;
   categories: { name: string; slug: string }[];
-  images: { url: string; thumbnailUrl: string | null; altText: string | null }[];
+  images: {
+    /** Id del asset: lo usan las variantes para apuntar a esta imagen. */
+    assetId: string;
+    url: string;
+    thumbnailUrl: string | null;
+    altText: string | null;
+  }[];
   optionTypes: { name: string; values: string[] }[];
   variants: StoreProductVariant[];
 }
@@ -127,7 +135,7 @@ const DETAIL_INCLUDE = {
   categories: { select: { name: true, slug: true } },
   images: {
     orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }],
-    select: { altText: true, asset: { select: { url: true, thumbnailUrl: true } } },
+    select: { altText: true, assetId: true, asset: { select: { url: true, thumbnailUrl: true } } },
   },
   optionTypes: {
     orderBy: { sortOrder: 'asc' },
@@ -405,6 +413,7 @@ export class StorefrontService {
       metaDescription: p.metaDescription,
       categories: p.categories.map((c) => ({ name: c.name, slug: c.slug })),
       images: p.images.map((img) => ({
+        assetId: img.assetId,
         url: img.asset.url,
         thumbnailUrl: img.asset.thumbnailUrl,
         altText: img.altText,
@@ -424,6 +433,7 @@ export class StorefrontService {
           stock: v.stock,
           stockPolicy: v.stockPolicy,
           color: v.color,
+          imageAssetId: v.imageAssetId,
           isDefault: v.isDefault,
           options: v.options.map((o) => ({
             optionType: o.optionValue.optionType.name,

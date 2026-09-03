@@ -64,7 +64,7 @@ __decorate([
 ], OptionTypeInputDto.prototype, "sortOrder", void 0);
 class VariantInputDto {
     static _OPENAPI_METADATA_FACTORY() {
-        return { sku: { required: false, type: () => String, maxLength: 100 }, price: { required: true, type: () => Number, minimum: 0 }, comparePrice: { required: false, type: () => Number, minimum: 0 }, costPrice: { required: false, type: () => Number, minimum: 0 }, stock: { required: false, type: () => Number, minimum: 0 }, stockPolicy: { required: false, type: () => Object }, weight: { required: false, type: () => Number, minimum: 0 }, color: { required: false, type: () => String, pattern: "/^#[0-9A-Fa-f]{6}$/" }, isDefault: { required: false, type: () => Boolean }, active: { required: false, type: () => Boolean }, sortOrder: { required: false, type: () => Number, minimum: 0 }, options: { required: false, type: () => [require("./create-product.dto").VariantOptionRefDto] } };
+        return { sku: { required: false, type: () => String, maxLength: 100 }, price: { required: true, type: () => Number, minimum: 0 }, comparePrice: { required: false, type: () => Number, minimum: 0 }, costPrice: { required: false, type: () => Number, minimum: 0 }, stock: { required: false, type: () => Number, minimum: 0 }, stockPolicy: { required: false, type: () => Object }, weight: { required: false, type: () => Number, minimum: 0 }, color: { required: false, type: () => String, pattern: "/^#[0-9A-Fa-f]{6}$/" }, imageAssetId: { required: false, type: () => String }, isDefault: { required: false, type: () => Boolean }, active: { required: false, type: () => Boolean }, sortOrder: { required: false, type: () => Number, minimum: 0 }, options: { required: false, type: () => [require("./create-product.dto").VariantOptionRefDto] } };
     }
 }
 exports.VariantInputDto = VariantInputDto;
@@ -122,6 +122,14 @@ __decorate([
     (0, class_validator_1.Matches)(/^#[0-9A-Fa-f]{6}$/, { message: 'El color debe ser un hex válido como #FF5733.' }),
     __metadata("design:type", String)
 ], VariantInputDto.prototype, "color", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({
+        description: 'Asset (de las imágenes del producto) al que salta la galería al elegir la variante.',
+    }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsUUID)(),
+    __metadata("design:type", String)
+], VariantInputDto.prototype, "imageAssetId", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ default: false }),
     (0, class_validator_1.IsOptional)(),
@@ -275,10 +283,10 @@ __decorate([
     __metadata("design:type", Array)
 ], CreateProductDto.prototype, "optionTypes", void 0);
 __decorate([
-    (0, swagger_1.ApiPropertyOptional)({ type: [ProductImageInputDto], description: 'Máx 20 imágenes.' }),
+    (0, swagger_1.ApiPropertyOptional)({ type: [ProductImageInputDto], description: 'Máx 50 imágenes.' }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsArray)(),
-    (0, class_validator_1.ArrayMaxSize)(20),
+    (0, class_validator_1.ArrayMaxSize)(50),
     (0, class_validator_1.ValidateNested)({ each: true }),
     (0, class_transformer_1.Type)(() => ProductImageInputDto),
     __metadata("design:type", Array)

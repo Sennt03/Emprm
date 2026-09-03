@@ -17,6 +17,7 @@ const COLLECTIONS_LIMIT = 3;
 const FEATURED_LIMIT = 60;
 const CATEGORY_PRODUCTS_LIMIT = 200;
 const CACHE_TTL_MS = 60_000;
+const NEGATIVE_CACHE_TTL_MS = 5_000;
 const CARD_INCLUDE = {
     categories: { select: { name: true }, take: 1 },
     images: {
@@ -44,7 +45,7 @@ const DETAIL_INCLUDE = {
     categories: { select: { name: true, slug: true } },
     images: {
         orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }],
-        select: { altText: true, asset: { select: { url: true, thumbnailUrl: true } } },
+        select: { altText: true, assetId: true, asset: { select: { url: true, thumbnailUrl: true } } },
     },
     optionTypes: {
         orderBy: { sortOrder: 'asc' },
@@ -83,12 +84,23 @@ let StorefrontService = class StorefrontService {
                     this.cache.delete(k);
             }
         }
-        const value = producer().catch((err) => {
+        const entry = {
+            expires: now + CACHE_TTL_MS,
+            value: undefined,
+        };
+        entry.value = producer()
+            .then((result) => {
+            if (result == null) {
+                entry.expires = Date.now() + NEGATIVE_CACHE_TTL_MS;
+            }
+            return result;
+        })
+            .catch((err) => {
             this.cache.delete(key);
             throw err;
         });
-        this.cache.set(key, { expires: now + CACHE_TTL_MS, value });
-        return value;
+        this.cache.set(key, entry);
+        return entry.value;
     }
     getHome() {
         return this.cached('home', () => this.fetchHome());
@@ -259,6 +271,7 @@ let StorefrontService = class StorefrontService {
             metaDescription: p.metaDescription,
             categories: p.categories.map((c) => ({ name: c.name, slug: c.slug })),
             images: p.images.map((img) => ({
+                assetId: img.assetId,
                 url: img.asset.url,
                 thumbnailUrl: img.asset.thumbnailUrl,
                 altText: img.altText,
@@ -278,6 +291,7 @@ let StorefrontService = class StorefrontService {
                     stock: v.stock,
                     stockPolicy: v.stockPolicy,
                     color: v.color,
+                    imageAssetId: v.imageAssetId,
                     isDefault: v.isDefault,
                     options: v.options.map((o) => ({
                         optionType: o.optionValue.optionType.name,
